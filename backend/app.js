@@ -39,7 +39,7 @@ const authLimiter = rateLimit({
 app.use("/api/auth",authLimiter);
 app.use("/api", generalLimiter);
 
-app.use("/api", monitorRouter);
+app.use("/api/monitors", monitorRouter);
 
 app.use((req,res,next)=> {
     res.status(404).json({message: "Route not found"})

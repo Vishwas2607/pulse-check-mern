@@ -13,4 +13,6 @@ const heartBeatSchema = new mongoose.Schema({
     error: String
 });
 
+// { monitorId: 1, checkedAt: -1 }
+
 export const Heartbeat = mongoose.model("Heartbeat", heartBeatSchema);

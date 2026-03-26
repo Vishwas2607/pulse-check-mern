@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 import { Worker } from "bullmq";
 import { connection } from "./config/redis.js";
-import { Heartbeat } from "../../api/src/models/heartbeat.model.js";
+import { Heartbeat } from "../../api/src/models/heartbeats.model.js";
 import ConnectDB from "../../api/src/config/db.connection.js";
-import { Incident } from "../../api/src/models/incident.model.js";
+import { Incident } from "../../api/src/models/incidents.model.js";
 
 dotenv.config({ path: '../../.env' }); 
 

@@ -1,5 +1,6 @@
 import { monitorQueue } from "../queues/monitor.queue.js";
-import { createMonitor, getMonitorsFromDB } from "../repositories/monitor.repository.js"
+import { getCurrentIncidentFromDB } from "../repositories/incidents.repository.js";
+import { createMonitor, getMonitorsFromDB } from "../repositories/monitors.repository.js"
 import AppError from "../utils/appError.js"
 
 export const createNewMonitor = async (data) => {
@@ -30,4 +31,11 @@ export const getMonitors = async() => {
     if(!monitors || monitors.length === 0) throw new AppError(404, "No monitors found");
 
     return monitors;
+};
+
+export const getMonitorStatus = async(id) => {
+    const status = await getCurrentIncidentFromDB(id);
+    if(!status) return {status:"UNKNOWN"}
+    else if(status.status=== "resolved") return {...status, status: "Up"}
+    return {...status, status:"DOWN"}
 }
