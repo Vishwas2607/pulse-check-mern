@@ -20,7 +20,7 @@ const errorHandler = (err,req,res,next)=> {
         console.error("[Error]: ", err.message);
     };
 
-    res.status(statusCode).json({message: message, ...err(isDev && {stack: err.stack})});
+    res.status(statusCode).json({message: message, ...(isDev && {stack: err.stack})});
 
 };
 

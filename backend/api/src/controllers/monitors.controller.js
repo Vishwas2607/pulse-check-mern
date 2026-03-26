@@ -1,4 +1,4 @@
-import { createNewMonitor, getMonitors, getMonitorStatus } from "../services/monitors.service.js"
+import { createNewMonitor, getMonitors, getMonitorStatus, getSummary } from "../services/monitors.service.js"
 
 export const createMonitorController = async(req,res) => {
     const monitor = await createNewMonitor(req.body);
@@ -16,4 +16,10 @@ export const getMonitorStatusController = async(req,res) => {
     const monitorStatus = await getMonitorStatus(req.params.id)
 
     res.status(200).json({monitorStatus: monitorStatus});
+}
+
+export const getSummaryController = async(req,res) => {
+    const summary = await getSummary(req.params.id,req.query.range="24h")
+
+    return res.status(200).json(summary);
 }

@@ -1,5 +1,6 @@
 import { monitorQueue } from "../queues/monitor.queue.js";
-import { getCurrentIncidentFromDB } from "../repositories/incidents.repository.js";
+import { getHeartbeatSummary } from "../repositories/heartbeats.repository.js";
+import { getCurrentIncidentFromDB, getIncidentSummary } from "../repositories/incidents.repository.js";
 import { createMonitor, getMonitorsFromDB } from "../repositories/monitors.repository.js"
 import AppError from "../utils/appError.js"
 
@@ -38,4 +39,42 @@ export const getMonitorStatus = async(id) => {
     if(!status) return {status:"UNKNOWN"}
     else if(status.status=== "resolved") return {...status, status: "Up"}
     return {...status, status:"DOWN"}
+}
+
+const convertToDate = (range) => {
+    const match = range.match(/^(\d+)([dhm])$/);
+    if (!match) throw new Error("Invalid range format");
+
+    const [, value, unit] = match;
+    const duration = parseInt(value, 10);
+
+    const date = new Date();
+
+    if (unit === "d") date.setDate(date.getDate() - duration);
+    if (unit === "h") date.setHours(date.getHours() - duration);
+    if (unit === "m") date.setMinutes(date.getMinutes() - duration);
+
+    return date;
+};
+
+export const getSummary = async(id,range) => {
+
+    const rangeStart = convertToDate(range);
+    const rangeEnd = new Date();
+    const [heartbeatSummary = {}] = await getHeartbeatSummary(id,rangeStart);
+    const [incidentSummary ={}] = await getIncidentSummary(id,rangeStart,rangeEnd);
+
+    const downTime = incidentSummary.totalDownTime;
+
+    const totalDownTime = Math.floor(downTime/1000);
+
+
+    const summary = {
+        uptimePercentage: heartbeatSummary.totalCount ? (heartbeatSummary.uptimeCount/heartbeatSummary.totalCount)*100 : null,
+        avgResponseTime: heartbeatSummary.avgResponseTime || 0,
+        totalDownTime: totalDownTime,
+        failureCount: incidentSummary.count || 0,
+    }
+
+    return summary;
 }
