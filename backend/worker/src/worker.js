@@ -4,6 +4,7 @@ import { connection } from "./config/redis.js";
 import { Heartbeat } from "../../api/src/models/heartbeats.model.js";
 import ConnectDB from "../../api/src/config/db.connection.js";
 import { Incident } from "../../api/src/models/incidents.model.js";
+import { HourlyAggregate } from "../../api/src/models/hourlyAggregate.model.js";
 
 dotenv.config({ path: '../../.env' }); 
 
@@ -22,7 +23,7 @@ const areLast3Down = (arr) => {
 const incidentCheck = async (monitorId) => {
     const incident = await Incident.findOne({monitorId, status: "open"});
 
-    return !!incident;
+    return incident;
 }
 
 const createIncident = async(data) => {
@@ -33,6 +34,32 @@ const createIncident = async(data) => {
 const updateIncident = async(monitorId) => {
     const updated = await Incident.findOneAndUpdate({monitorId, status:"open"}, {status:"resolved", resolvedAt: new Date()}, {runValidators:true, returnDocument:"after"})
     return updated;
+}
+
+const upsertHourlyAggregation = async(searchAndSetValue, incValues) => {
+    const updated = await HourlyAggregate.updateOne(searchAndSetValue,{$setOnInsert: searchAndSetValue, $inc:incValues},{upsert:true})
+    return updated;
+}
+
+const incrementFailureCount = async(search) => {
+    await HourlyAggregate.updateOne(search, {$inc: {failureCount:1}},{upsert:true});
+    return 
+}
+
+const floorToHour = (date) => {
+    const d = new Date(date);
+    d.setMinutes(0,0,0)
+    return d; 
+}
+
+// const getStartIncidentTime = async (monitorId) => {
+//     const getTime = await Incident.findOne({monitorId, status:"open"})
+//     return getTime?.startedAt;
+// }
+
+const updateBucketDownTime = async(search,duration) => {
+    await HourlyAggregate.updateOne(search, {$inc: {downtime: duration}},{upsert:true})
+    return
 }
 
 ConnectDB()
@@ -48,10 +75,14 @@ ConnectDB()
         const {monitorId} = job.data;
 
         const start = Date.now();
+        const now = new Date();
+        const bucketStart = floorToHour(now);
+
         const heartbeatData = {monitorId: monitorId, status: "up", checkedAt: new Date()}
+        let latency = 0;
         try{
             const res = await fetch(url);
-            const latency = Date.now() - start;
+            latency = Date.now() - start;
 
             heartbeatData.responseTime = latency;
             heartbeatData.statusCode = res.status;
@@ -71,23 +102,51 @@ ConnectDB()
 
         const beat = await Heartbeat.create(heartbeatData);
         console.log(beat);
+        
+        const searchAndSetValue = {monitorId, bucketStart};
+        const incValues = {totalChecks: 1, upChecks: heartbeatData.status === "up" ? 1: 0, totalResponseTime: heartbeatData.status === "up" ? latency : 0};
+        
+        const updateHourlyAggregate = await upsertHourlyAggregation(searchAndSetValue,incValues)
+
+        console.log(updateHourlyAggregate);
 
         const savedHeartBeats = await getLastHeartbeats(monitorId);
-        const checkIncident = await incidentCheck(monitorId);
+        const incident = await incidentCheck(monitorId);
+
         if(areLast3Down(savedHeartBeats)) {
             console.log("Monitor:",monitorId, "Down ❌");
-            if (!checkIncident) {
+            if (!incident) {
                 const incidentData = {monitorId:monitorId, status:"open", startedAt:new Date(), resolvedAt: null}
-                const incident = await createIncident(incidentData);
-                console.log("New Incident Created", incident);
+                const createdIncident = await createIncident(incidentData);
+                const bucketStart = floorToHour(createdIncident.startedAt);
+
+                await incrementFailureCount({ monitorId, bucketStart });
+                console.log("New Incident Created", createdIncident);
             } else {
                 console.log("No new Incident Created")
             }
 
         } else {
-            if(heartbeatData.status === "up" && checkIncident) {
+            if(heartbeatData.status === "up" && incident) {
+                let current = incident.startedAt;
+                if (!current) return;
+                let resolvedAt = new Date();
+
+                while (current < resolvedAt) {
+                let bucketStart = floorToHour(current);
+                let bucketEnd = new Date(bucketStart.getTime() + 60 * 60 * 1000);
+
+                let overlapEnd = new Date(Math.min(bucketEnd.getTime(), resolvedAt.getTime()));
+
+                let duration = (overlapEnd - current)/1000;
+                await updateBucketDownTime({monitorId,bucketStart}, duration);
+
+                current = overlapEnd;
+                }
+
                 await updateIncident(monitorId);
-                console.log("Incident Resolved")
+                console.log("Incident Resolved");
+
             } else {
                 console.log("Monitor:",monitorId, "Okay ✅");
             }
