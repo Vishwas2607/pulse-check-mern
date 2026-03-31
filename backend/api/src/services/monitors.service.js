@@ -1,6 +1,6 @@
 import { monitorQueue } from "../queues/monitor.queue.js";
-import { getHeartbeatSummary } from "../repositories/heartbeats.repository.js";
-import { getCurrentIncidentFromDB, getOpenIncidents, getResolvedIncident } from "../repositories/incidents.repository.js";
+import { getHourlyAggregate } from "../repositories/hourlyAggregate.repository.js";
+import { getCurrentIncidentFromDB, getOpenIncidents} from "../repositories/incidents.repository.js";
 import { createMonitor, getMonitorsFromDB } from "../repositories/monitors.repository.js"
 import AppError from "../utils/appError.js"
 
@@ -61,30 +61,33 @@ export const getSummary = async (id, range) => {
     const rangeStart = convertToDate(range);
     const rangeEnd = new Date();
 
-    const [heartbeatRes, openRes, resolvedRes] = await Promise.all([
-        getHeartbeatSummary(id, rangeStart),
-        getOpenIncidents(id, rangeStart, rangeEnd),
-        getResolvedIncident(id, rangeStart, rangeEnd)
-    ]);
+    const hourlyData = await getHourlyAggregate(id,rangeStart,rangeEnd) || [];
+    const [{openDownTime = 0}={}] = await getOpenIncidents(id,rangeStart,rangeEnd) ;
 
-    const heartbeat = heartbeatRes[0] || { totalCount: 0, uptimeCount: 0, avgResponseTime: 0 };
-    const open = openRes[0] || { count: 0, openDowntime: 0 };
-    const resolved = resolvedRes[0] || { count: 0, resolvedDowntime: 0 };
+    const initial = {
+        totalChecks: 0,
+        upChecks: 0,
+        totalResponseTime: 0,
+        totalDownTime: 0,
+        failureCount: 0
+        };
 
-    const openDownTime = open.openDowntime || 0;
-    const resolvedDownTime = resolved.resolvedDowntime || 0;
+    const totals = hourlyData.reduce((acc,curr)=> {
+        acc.totalChecks += curr.totalChecks || 0;
+        acc.upChecks += curr.upChecks || 0;
+        acc.totalResponseTime += curr.totalResponseTime || 0;
+        acc.totalDownTime += curr.totalDownTime || 0;
+        acc.failureCount += curr.failureCount || 0;
+        return acc;
+    },initial)
 
-    const totalDownTimeMs = openDownTime + resolvedDownTime;
-    const totalCount = (open.count || 0) + (resolved.count || 0);
 
     const summary = {
-        uptimePercentage: heartbeat.totalCount 
-            ? (heartbeat.uptimeCount / heartbeat.totalCount) * 100 
-            : null,
-        avgResponseTime: heartbeat.avgResponseTime || 0,
-        totalDownTime: Math.floor(totalDownTimeMs / 1000),
-        failureCount: totalCount,
+    uptimePercentage : totals.totalChecks === 0 ? null : (totals.upChecks/totals.totalChecks)*100,
+    avgResponseTime : totals.upChecks === 0 ? null : parseInt((totals.totalResponseTime/totals.upChecks).toFixed(2)),
+    totalDownTime : (totals.totalDownTime || 0) + (parseInt((openDownTime/1000).toFixed(2)) || 0),
+    failureCount : totals.failureCount
     };
 
-    return summary;
+    return summary
 };

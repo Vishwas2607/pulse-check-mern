@@ -17,16 +17,10 @@ export const getOpenIncidents = (monitorId,rangeStart,rangeEnd) => {
                 startedAt: {$lte: rangeEnd} 
             },
         },
-        {
-            $addFields: {
-                actualStart: { $max: ["$startedAt", rangeStart] },
-                actualEnd: rangeEnd
-            }
-        },
 
         {
             $addFields: {
-                durationInMs: {$max: [{$subtract: [{actualStart: { $max: ["$startedAt", rangeStart] }},{actualEnd: rangeEnd }]},0]}
+                durationInMs: {$max: [0,{$subtract:[rangeEnd, {$max: ["$startedAt", rangeStart]}]}]}
             }
         },
     
@@ -34,82 +28,11 @@ export const getOpenIncidents = (monitorId,rangeStart,rangeEnd) => {
 
             $group: {
                 _id: "$monitorId",
-                count: {$sum:1},
-                openDowntime: {$sum: "$durationInMs"}
+                openDownTime: {$sum: "$durationInMs"}
             }
         }
         
     ]
-
-    return Incident.aggregate(pipeline);
-};
-
-export const getResolvedIncident = (monitorId,rangeStart,rangeEnd) => {
-    const pipeline = [
-        {
-            $match: {
-                monitorId: monitorId,
-                status: "resolved",
-                resolvedAt: {$gte: rangeStart},
-                startedAt: {$lte: rangeEnd}
-            },
-        },
-
-        {
-            $addFields: {
-                actualStart: { $max: ["$startedAt", rangeStart] },
-                actualEnd: { $min: ["$resolvedAt", rangeEnd] }
-            }
-        },
-
-        {
-            $addFields: {
-                durationInMs: {$max: [{$subtract: [{actualStart: { $max: ["$startedAt", rangeStart] }},{actualEnd: {$min: ["$resolvedAt", rangeEnd]}}]},0]}
-            }
-        },
-    
-        {
-
-            $group: {
-                _id: "$monitorId",
-                count: {$sum:1},
-                resolvedDowntime: {$sum: "$durationInMs"}
-            }
-        }
-        
-    ]
-
-    return Incident.aggregate(pipeline);
-};
-
-export const getIncidentSummary = (monitorId,rangeStart,rangeEnd)=> {
-
-    const pipeline = [
-            {
-                $match: {
-                    monitorId: monitorId,
-                    $or: [ {$and: [{status: {$eq: "open"}, startedAt: {$lte: rangeEnd}}]}, {$and: [{status: {$eq: "resolved"}}, {startedAt: {$lte: rangeEnd}}, {resolvedAt: {$gte: rangeStart}}]}]
-                }
-            },
-            {
-                $addFields: {
-                    actualStart: { $max: ["$startedAt", rangeStart] },
-                    actualEnd: { $min: [{ $ifNull: ["$resolvedAt", rangeEnd] }, rangeEnd]}
-                }
-            },
-            {
-                $addFields: {
-                    durationInMs: {$max: [{ $subtract: ["$actualEnd", "$actualStart"] },0]}
-                }
-            },
-            {
-                $group: {
-                    _id: "$monitorId",
-                    count: { $sum: 1 },
-                    totalDownTime: { $sum: "$durationInMs" }
-                }
-            }
-        ];
 
     return Incident.aggregate(pipeline);
 };

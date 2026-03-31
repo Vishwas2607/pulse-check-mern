@@ -13,7 +13,7 @@ const hourlyAggregateSchema = new mongoose.Schema({
         type: Number,
         required: [true, "Total checks is required."]
     },
-    upchecks: {
+    upChecks: {
         type: Number,
         required: [true, "Up checks is required."]
     },
