@@ -1,20 +1,21 @@
-import { getIncidentCursorBased, getIncidentsFromDB } from "../repositories/incidents.repository.js";
+import { getIncidentCursorBased} from "../repositories/incidents.repository.js";
 import AppError from "../utils/appError.js";
 
 export const getIncidents = async(monitorId,data) => {
 
     if (!monitorId) throw new AppError(400, "Invalid or no ID provided");
-    if(!data.limit) data.limit = 10;
 
-    const {cursor,limit} = data;
-    let incidents;
+    const {cursor} = data;
+    let query = {monitorId:monitorId};
 
     if (cursor) {
         const { startedAt, _id } = JSON.parse(cursor);
-        incidents = await getIncidentCursorBased(monitorId,startedAt,_id,limit);
-    } else {
-        incidents = await getIncidentsFromDB(monitorId,limit);
+        query.$or = [
+            {startedAt: {$lt: new Date(startedAt)}},
+            {startedAt: new Date(startedAt), _id: {$lt: _id}}
+        ]
     }
+    const incidents = await getIncidentCursorBased(query,20);
 
     if(!incidents) throw new AppError(400,"No incidents happened to show");
 
@@ -23,6 +24,8 @@ export const getIncidents = async(monitorId,data) => {
                 _id: incidents[incidents.length - 1]._id
                 })
             : null;
+
+            console.log(nextCursor);
 
     return {incidents:incidents, nextCursor: nextCursor};
 }
