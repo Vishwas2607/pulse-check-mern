@@ -16,6 +16,7 @@ const incidentSchema = new mongoose.Schema({
 
 incidentSchema.index({monitorId:1, status:1, startedAt:1},
     {
+        unique: true,
         partialFilterExpression: {
             status: "open"
         }

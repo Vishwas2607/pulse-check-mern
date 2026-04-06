@@ -52,13 +52,8 @@ const floorToHour = (date) => {
     return d; 
 }
 
-// const getStartIncidentTime = async (monitorId) => {
-//     const getTime = await Incident.findOne({monitorId, status:"open"})
-//     return getTime?.startedAt;
-// }
-
-const updateBucketDownTime = async(search,duration) => {
-    await HourlyAggregate.updateOne(search, {$inc: {downtime: duration}},{upsert:true})
+const updateBulkBucketDownTime = async(bulkOps) => {
+    await HourlyAggregate.bulkWrite(bulkOps);
     return
 }
 
@@ -78,7 +73,7 @@ ConnectDB()
         const now = new Date();
         const bucketStart = floorToHour(now);
 
-        const heartbeatData = {monitorId: monitorId, status: "up", checkedAt: new Date()}
+        const heartbeatData = {monitorId: monitorId, status: "up", checkedAt: new Date(),checkKey:job.id}
         let latency = 0;
         try{
             const res = await fetch(url);
@@ -100,8 +95,14 @@ ConnectDB()
             console.log("Request failed:", err.message)
         }
 
-        const beat = await Heartbeat.create(heartbeatData);
-        console.log(beat);
+        try{
+            const beat = await Heartbeat.create(heartbeatData);
+            console.log(beat);
+        } catch (err) {
+            if(err.code === 11000) {
+                console.log("Duplicate heartbeat prevented.")
+            } else console.error(err);
+        }
         
         const searchAndSetValue = {monitorId, bucketStart};
         const incValues = {totalChecks: 1, upChecks: heartbeatData.status === "up" ? 1: 0, totalResponseTime: heartbeatData.status === "up" ? latency : 0};
@@ -115,23 +116,24 @@ ConnectDB()
 
         if(areLast3Down(savedHeartBeats)) {
             console.log("Monitor:",monitorId, "Down ❌");
-            if (!incident) {
+            try {
                 const incidentData = {monitorId:monitorId, status:"open", startedAt:new Date(), resolvedAt: null}
                 const createdIncident = await createIncident(incidentData);
                 const bucketStart = floorToHour(createdIncident.startedAt);
 
                 await incrementFailureCount({ monitorId, bucketStart });
                 console.log("New Incident Created", createdIncident);
-            } else {
-                console.log("No new Incident Created")
-            }
-
+            } catch (err) {
+                if(err.code === 11000) console.log("Duplicate incident prevented.")
+                else console.error(err);
+            } 
         } else {
             if(heartbeatData.status === "up" && incident) {
                 let current = incident.startedAt;
                 if (!current) return;
                 let resolvedAt = new Date();
 
+                const bulkOps = [];
                 while (current < resolvedAt) {
                 let bucketStart = floorToHour(current);
                 let bucketEnd = new Date(bucketStart.getTime() + 60 * 60 * 1000);
@@ -139,12 +141,19 @@ ConnectDB()
                 let overlapEnd = new Date(Math.min(bucketEnd.getTime(), resolvedAt.getTime()));
 
                 let duration = (overlapEnd - current)/1000;
-                await updateBucketDownTime({monitorId,bucketStart}, duration);
+                bulkOps.push({
+                    updateOne: {
+                        filter: {monitorId,bucketStart},
+                        update:{$inc:{downtime: duration}},
+                        upsert: true
+                    }
+                });
 
                 current = overlapEnd;
                 }
 
                 await updateIncident(monitorId);
+                if (bulkOps.length > 0) await updateBulkBucketDownTime(bulkOps);
                 console.log("Incident Resolved");
 
             } else {
