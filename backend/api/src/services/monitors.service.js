@@ -19,12 +19,13 @@ export const createNewMonitor = async (data) => {
         repeat: {
             every: monitor.interval * 1000,
         },
-        jobId: monitor._id.toString(),
-        attempts: 4,
+        attempts: 5,
         backoff: {
             type: "exponential",
             delay: 1000
-        }
+        },
+        removeOnComplete: true,
+        removeOnFail: {count:10}
 
     }
 )
