@@ -2,7 +2,7 @@ import { Incident } from "../models/incidents.model.js";
 import { getIncidents } from "../services/incidents.service.js";
 
 export const getIncidentController = async(req,res) => {
-    const incidents = await getIncidents(req.params.id, req.query)
+    const incidents = await getIncidents(req.monitor, req.query)
 
     return res.status(200).json(incidents);
 }
@@ -11,7 +11,7 @@ export const getIncidentController = async(req,res) => {
 export const addIncidentSeed = async(req,res) => {
     const incidents = [];
     const now = Date.now();
-    let monitorId = req.params.id;
+    let monitorId = req.monitor;
 
     const deleteResult = await Incident.deleteMany({ monitorId });
     console.log(`Cleared ${deleteResult.deletedCount} existing records for monitor ${monitorId}.`);
