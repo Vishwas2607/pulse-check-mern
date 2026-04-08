@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import { isDev } from "./api/src/utils/constants.js";
 import errorHandler from "./api/src/middlewares/errorHandler.js";
 import monitorRouter from "./api/src/routes/monitors.routes.js";
+import authRouter from "./api/src/routes/auth.routes.js";
 
 const app = express();
 app.use(helmet());
@@ -40,6 +41,7 @@ app.use("/api/auth",authLimiter);
 app.use("/api", generalLimiter);
 
 app.use("/api/monitors", monitorRouter);
+app.use("/api/auth", authRouter);
 
 app.use((req,res,next)=> {
     res.status(404).json({message: "Route not found"})
