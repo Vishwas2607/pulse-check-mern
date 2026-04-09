@@ -1,4 +1,4 @@
-import { createNewMonitor, getMonitors, getMonitorStatus, getSummary } from "../services/monitors.service.js"
+import { createNewMonitor, deleteMonitorService, getMonitors, getMonitorStatus, getSummary, updateMonitorService } from "../services/monitors.service.js"
 
 export const createMonitorController = async(req,res) => {
     const monitor = await createNewMonitor(req.user, req.body);
@@ -13,13 +13,25 @@ export const getMonitorsController = async(req,res) => {
 }
 
 export const getMonitorStatusController = async(req,res) => {
-    const monitorStatus = await getMonitorStatus(req.user,req.params.id)
+    const monitorStatus = await getMonitorStatus(req.monitor)
 
     res.status(200).json({monitorStatus: monitorStatus});
 }
 
 export const getSummaryController = async(req,res) => {
-    const summary = await getSummary(req.user,req.params.id,req.query.range="24h")
+    const summary = await getSummary(req.monitor,req.query.range="24h")
 
     return res.status(200).json(summary);
+}
+
+export const updateMonitorController = async(req,res) => {
+    const updatedMonitor = await updateMonitorService(req.monitor,req.body); 
+
+    return res.status(200).json({message: "Successfully updated monitor", data:{updatedMonitor:updatedMonitor}})
+}
+
+export const deleteMonitorController = async(req,res) => {
+    const deletedMonitor = await deleteMonitorService(req.monitor);
+
+    return res.status(200).json({message:"Successfully deleted monitor", data: {deletedMonitor:deletedMonitor}})
 }

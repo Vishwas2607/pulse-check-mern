@@ -11,3 +11,11 @@ export const getMonitorsFromDB = (userId) => {
 export const getOneMonitorFromDB = (userId,monitorId) => {
     return Monitor.findOne({userId,monitorId});
 }
+
+export const updateMonitor = (monitorId,data) => {
+    return Monitor.findByIdAndUpdate(monitorId, data)
+}
+
+export const deleteMonitor = (monitorId) => {
+    return Monitor.findByIdAndDelete(monitorId);
+}

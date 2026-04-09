@@ -37,3 +37,7 @@ export const getOpenIncidents = (monitorId,rangeStart,rangeEnd) => {
 
     return Incident.aggregate(pipeline);
 };
+
+export const deleteIncidentsByMonitor = (monitorId) => {
+    return Incident.findByIdAndDelete(monitorId);
+}

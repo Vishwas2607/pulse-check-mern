@@ -6,6 +6,7 @@ import ConnectDB from "../../api/src/config/db.connection.js";
 import { Incident } from "../../api/src/models/incidents.model.js";
 import { HourlyAggregate } from "../../api/src/models/hourlyAggregate.model.js";
 import logger from "./utils/logger.js";
+import Monitor from "../../api/src/models/monitors.model.js";
 
 dotenv.config({ path: '../../.env' }); 
 
@@ -19,6 +20,10 @@ const areLast3Down = (arr) => {
         return arr.every(hb => hb.status === "down")
     }
     return false;
+}
+
+const getMonitorFromDB = async(monitorId) => {
+    return await Monitor.findById(monitorId);
 }
 
 const createIncident = async(data) => {
@@ -69,6 +74,9 @@ ConnectDB()
 
         logger.info(`Job received`, { jobId: job.id, monitorId, url });
 
+        const monitor = await getMonitorFromDB(monitorId)
+        if(!monitor) return;
+        
         const start = Date.now();
         const now = new Date();
         const bucketStart = floorToHour(now)

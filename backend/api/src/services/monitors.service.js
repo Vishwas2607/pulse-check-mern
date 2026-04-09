@@ -1,7 +1,7 @@
 import { monitorQueue } from "../queues/monitor.queue.js";
 import { getHourlyAggregate } from "../repositories/hourlyAggregate.repository.js";
 import { getCurrentIncidentFromDB, getOpenIncidents} from "../repositories/incidents.repository.js";
-import { createMonitor, getMonitorsFromDB, getOneMonitorFromDB } from "../repositories/monitors.repository.js"
+import { createMonitor, getMonitorsFromDB, updateMonitor,deleteMonitor} from "../repositories/monitors.repository.js"
 import AppError from "../utils/appError.js"
 import { convertToDate } from "../utils/helpers.js";
 
@@ -43,20 +43,13 @@ export const getMonitors = async(userId) => {
 };
 
 export const getMonitorStatus = async(userId,monitorId) => {
-    const monitor = await getOneMonitorFromDB(userId,monitorId);
-
-    if(!monitor) throw new AppError(404, "Monitor not found");
 
     const status = await getCurrentIncidentFromDB(monitorId);
     if(!status) return {status:"UNKNOWN"}
     else if(status.status=== "resolved") return {...status, status: "Up"}
     return {...status, status:"DOWN"}
 }
-export const getSummary = async (userId,monitorId, range) => {
-
-    const monitor = await getOneMonitorFromDB(userId,monitorId);
-
-    if(!monitor) throw new AppError(404, "Monitor not found");
+export const getSummary = async (monitorId, range) => {
 
     const rangeStart = convertToDate(range);
     const rangeEnd = new Date();
@@ -91,3 +84,47 @@ export const getSummary = async (userId,monitorId, range) => {
 
     return summary
 };
+
+
+export const updateMonitorService = async (monitorId,data) => {
+    const {url,interval} = data;
+
+    const updateFields = {};
+
+    if(url) updateFields.url = url;
+    if(interval) updateFields.interval = interval;
+
+    const updatedMonitor = await updateMonitor(monitorId, updateFields);
+
+    if(!updatedMonitor) throw new AppError(400,"No document found with that ID; nothing updated");
+
+    await monitorQueue.add(
+        `monitor-check-${monitorId}`,
+        { monitorId: updatedMonitor._id, url: updatedMonitor.url },
+        {
+            repeat: { every: updatedMonitor.interval * 1000 },
+            attempts: 5,
+            backoff: { type: "exponential", delay: 1000 },
+            removeOnComplete: true,
+            removeOnFail: { count: 10 },
+        }
+    );
+    return updatedMonitor;
+}
+
+export const deleteMonitorService = async(monitorId) => {
+    const deletedMonitor = await deleteMonitor(monitorId);
+
+    if(!deletedMonitor) throw new AppError(400, "No monitor found with that ID; nothing deleted");
+
+    const jobs = await monitorQueue.getJobSchedulers(0,-1);
+
+    const matchedJobs = jobs.filter(job => job.name.includes(monitorId));
+
+    await deleteHeartbeatsByMonitor(monitorId);
+    await deleteIncidentsByMonitor(monitorId);
+
+    await Promise.all(matchedJobs.map(job => monitorQueue.removeJobScheduler(job.id)));
+
+    return deletedMonitor;
+}

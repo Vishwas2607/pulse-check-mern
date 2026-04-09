@@ -24,3 +24,7 @@ export const getHeartbeatSummary = async (monitorId, range) => {
 
     return Heartbeat.aggregate(pipeline);
 }
+
+export const deleteHeartbeatsByMonitor = (monitorId) => {
+    return Heartbeat.findByIdAndDelete(monitorId);
+}
