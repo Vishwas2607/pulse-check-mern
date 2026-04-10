@@ -5,11 +5,11 @@ export const createMonitor = (data) => {
 }
 
 export const getMonitorsFromDB = (userId) => {
-    return Monitor.find({userId});
+    return Monitor.find({userId}).lean();
 }
 
 export const getOneMonitorFromDB = (userId,monitorId) => {
-    return Monitor.findOne({userId,monitorId});
+    return Monitor.findOne({_id:monitorId, userId});
 }
 
 export const updateMonitor = (monitorId,data) => {

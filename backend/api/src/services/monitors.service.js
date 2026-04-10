@@ -1,6 +1,6 @@
 import { monitorQueue } from "../queues/monitor.queue.js";
 import { getHourlyAggregate } from "../repositories/hourlyAggregate.repository.js";
-import { getCurrentIncidentFromDB, getOpenIncidents} from "../repositories/incidents.repository.js";
+import { getCurrentIncidentFromDB, getOpenIncidents, getRecentIncidentsBulk} from "../repositories/incidents.repository.js";
 import { createMonitor, getMonitorsFromDB, updateMonitor,deleteMonitor} from "../repositories/monitors.repository.js"
 import AppError from "../utils/appError.js"
 import { convertToDate } from "../utils/helpers.js";
@@ -38,17 +38,25 @@ export const getMonitors = async(userId) => {
     const monitors = await getMonitorsFromDB(userId);
 
     if(!monitors || monitors.length === 0) throw new AppError(404, "No monitors found");
+    const monitorIds = monitors.map(m=>m._id.toString())
+    const allMonitorStatus = await getRecentIncidentsBulk(monitorIds) || [];
 
-    return monitors;
+    const statusMap = new Map(allMonitorStatus.map(s=> [s.monitorId, {status: s.status === "open"? "DOWN": "UP", startedAt: s.startedAt, resolvedAt:s.resolvedAt}]))
+
+    const merged = monitors.map(m => {
+        const incident = statusMap.get(m._id.toString());
+
+        return {
+            ...m,
+            status: incident?.status ?? "UP",
+            lastIncident: {
+                startedAt: incident?.startedAt ?? null,
+                resolvedAt: incident?.resolvedAt ?? null
+            }
+    }})
+    return merged;
 };
 
-export const getMonitorStatus = async(userId,monitorId) => {
-
-    const status = await getCurrentIncidentFromDB(monitorId);
-    if(!status) return {status:"UNKNOWN"}
-    else if(status.status=== "resolved") return {...status, status: "Up"}
-    return {...status, status:"DOWN"}
-}
 export const getSummary = async (monitorId, range) => {
 
     const rangeStart = convertToDate(range);

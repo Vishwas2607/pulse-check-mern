@@ -9,15 +9,22 @@ export const getIncidents = async(monitorId,data) => {
     let query = {monitorId:monitorId};
 
     if (cursor) {
-        const { startedAt, _id } = JSON.parse(cursor);
-        query.$or = [
-            {startedAt: {$lt: new Date(startedAt)}},
-            {startedAt: new Date(startedAt), _id: {$lt: _id}}
-        ]
-    }
-    const incidents = await getIncidentCursorBased(query,20);
+        let data
+        try {
+            data = cursor ? JSON.parse(cursor) : {}; 
+            if(data.startedAt && data._id) {
+                query.$or = [
+                    {startedAt: {$lt: new Date(data.startedAt)}},
+                    {startedAt: new Date(data.startedAt), _id: {$lt: data._id}}
+                ]
+            }
+        } catch (e) {
+            console.error("Failed to parse JSON:", e);
+            data = {};
+        };
 
-    if(!incidents) throw new AppError(400,"No incidents happened to show");
+    }
+    const incidents = await getIncidentCursorBased(query,20) || [];
 
     const nextCursor = incidents.length ? JSON.stringify({
                 startedAt: incidents[incidents.length - 1].startedAt,
@@ -27,5 +34,21 @@ export const getIncidents = async(monitorId,data) => {
 
             console.log(nextCursor);
 
-    return {incidents:incidents, nextCursor: nextCursor};
+    let now = Date.now();
+
+    const formattedIncidents = incidents.map(i => {
+            const start = new Date(i.startedAt).getTime();
+            const end = i.resolvedAt
+                ? new Date(i.resolvedAt).getTime()
+                : now;
+
+            return {
+                ...i.toObject(),
+                isActive: !i.resolvedAt,
+                durationInSeconds: Math.max(0, Math.floor((end - start) / 1000)),
+                currentStatus: !i.resolvedAt ? "DOWN" : "RESOLVED"
+            };
+        });
+
+    return {incidents:formattedIncidents, nextCursor: nextCursor};
 }
