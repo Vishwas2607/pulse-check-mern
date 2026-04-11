@@ -3,6 +3,7 @@ import React from "react"
 import { Dot } from "lucide-react";
 import clsx from "clsx";
 import { STATUS_STYLES, STATUS_BG_STYLES } from "../../../utils/constants";
+import { useNavigate } from "react-router";
 
 const getMinutes = (from: string, to: number) => {
   return Math.max(
@@ -11,8 +12,9 @@ const getMinutes = (from: string, to: number) => {
   );
 };
 
-export const MonitorCard = React.memo(({id, url,interval,status,lastIncident}: MonitorsType) => {
+export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident}: MonitorsType) => {
     const [, forceUpdate] = React.useState(0);
+    const navigate = useNavigate()
 
     React.useEffect(() => {
     const time = setInterval(() => {
@@ -31,7 +33,7 @@ export const MonitorCard = React.memo(({id, url,interval,status,lastIncident}: M
         if (mins === 0) incidentMessage = "Down just now";
         else if (mins === 1) incidentMessage = "Down for 1 min";
         else incidentMessage = `Down for ${mins} mins`;
-    } else if (lastIncident.resolvedAt) {
+    } else if (lastIncident?.resolvedAt) {
         const mins = getMinutes(
         lastIncident.startedAt,
         new Date(lastIncident.resolvedAt).getTime()
@@ -43,11 +45,27 @@ export const MonitorCard = React.memo(({id, url,interval,status,lastIncident}: M
     }
     }
 
+    const bgstyle = STATUS_BG_STYLES[status] ?? STATUS_BG_STYLES["UNKNOWN"];
+    const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES["UNKNOWN"];
+    const isDown = status === "DOWN" ;
+
     return (
-        <li className={clsx("p-4 rounded-md", STATUS_BG_STYLES[status])}>
-            <span>Url: {url}</span> | <span>Interval: {interval}s</span>
-            <span className={clsx("flex items-center gap-1 font-medium",STATUS_STYLES[status])}><Dot size={16}/>Status: {status}</span>
-            <span>{incidentMessage}</span>
+        <li className={clsx("p-4 rounded-md card hover:scale-[1.01] cursor-pointer", bgstyle)} onClick={() => navigate(`/monitors/${id}`)}>
+            <div className="flex justify-between items-start mb-4">
+            <div>
+                <div className="card-title">URL: {url}</div>
+                <div className="card-title">Interval: {interval}s</div>
+            </div>
+
+            <div className={clsx("flex items-center gap-1 font-medium", statusStyle, (isDown && "animate-pulse"))}>
+                <Dot size={16} />
+                {status}
+            </div>
+            </div>
+
+            <div className="card-content mt-2">
+            {incidentMessage}
+            </div>
         </li>
     )
 });

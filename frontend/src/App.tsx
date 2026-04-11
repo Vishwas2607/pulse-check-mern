@@ -1,12 +1,17 @@
 import './App.css'
-
+import MonitorDetails from './pages/MonitorDetailsPage'
+import Monitors from './pages/MonitorsPage'
+import { Routes, Route } from 'react-router'
 function App() {
 
   return (
     <>
-  <h1 className="text-5xl bg-red-400 font-bold underline">
-    Hello world!
-  </h1>
+    <main className='flex-center gap-main bg-main min-h-svh'>
+    <Routes>
+      <Route path='/' element={<Monitors/>}/>
+      <Route path="/monitors/:id" element={<MonitorDetails/>}/>
+    </Routes>
+    </main>
     </>
   )
 }

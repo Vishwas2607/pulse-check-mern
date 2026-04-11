@@ -5,7 +5,7 @@ export const STATUS_STYLES = {
 };
 
 export const STATUS_BG_STYLES = {
-  UP: "bg-green-100",
-  DOWN: "bg-red-100",
-  UNKNOWN: "bg-gray-100"
+  UP: "bg-green-500/50 border-green-500/30",
+  DOWN: "border-red-500/50 bg-red-500/10",
+  UNKNOWN: "bg-gray-800"
 };
