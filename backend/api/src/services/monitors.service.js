@@ -1,7 +1,7 @@
 import { monitorQueue } from "../queues/monitor.queue.js";
 import { getHourlyAggregate } from "../repositories/hourlyAggregate.repository.js";
 import { getCurrentIncidentFromDB, getOpenIncidents, getRecentIncidentsBulk} from "../repositories/incidents.repository.js";
-import { createMonitor, getMonitorsFromDB, updateMonitor,deleteMonitor} from "../repositories/monitors.repository.js"
+import { createMonitor, getMonitorsFromDB, updateMonitor,deleteMonitor, getOneMonitorFromDB} from "../repositories/monitors.repository.js"
 import AppError from "../utils/appError.js"
 import { convertToDate } from "../utils/helpers.js";
 
@@ -32,6 +32,19 @@ export const createNewMonitor = async (userId,data) => {
 )
     console.log(monitor);
     return monitor
+}
+
+export const getMonitorStatus = async(monitorId,userId) => {
+    const monitorDetail = await getOneMonitorFromDB(userId,monitorId) || [];
+    const lastIncident = await getCurrentIncidentFromDB(monitorId);
+    const start = new Date(lastIncident.startedAt).getTime();
+    const end = lastIncident.resolvedAt ? new Date(lastIncident.resolvedAt).getTime() : Date.now();
+
+    return {
+        ...monitorDetail,
+        isDown: lastIncident.status === "open",
+        durationInSeconds: Math.max(0, Math.floor((end - start) / 1000)),
+    }
 }
 
 export const getMonitors = async(userId) => {

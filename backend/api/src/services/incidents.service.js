@@ -46,7 +46,7 @@ export const getIncidents = async(monitorId,data) => {
                 ...i.toObject(),
                 isActive: !i.resolvedAt,
                 durationInSeconds: Math.max(0, Math.floor((end - start) / 1000)),
-                currentStatus: !i.resolvedAt ? "DOWN" : "RESOLVED"
+                currentStatus: !i.resolvedAt ? "DOWN" : "UP"
             };
         });
 
