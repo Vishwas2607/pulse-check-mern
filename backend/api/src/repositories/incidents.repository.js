@@ -6,7 +6,7 @@ export const getIncidentCursorBased = (query,limit) => {
 };
 
 export const getCurrentIncidentFromDB = (monitorId) => {
-    return Incident.find({monitorId}).sort({startedAt: -1}).limit(1);
+    return Incident.find({monitorId}).sort({startedAt: -1}).limit(1).lean();
 };
 
 export const getRecentIncidentsBulk = (monitorIds) => {

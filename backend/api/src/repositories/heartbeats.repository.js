@@ -3,8 +3,8 @@ import { Heartbeat } from "../models/heartbeats.model.js"
 export const getHeartbeatsFromDB = (monitorId,skip,limit) => {
     return Heartbeat.find({monitorId}).sort({checkedAt: -1}).skip(skip).limit(limit)
 }
-export const lastHeartbeatFromDB = (monitorId) => {
-    return Heartbeat.find({monitorId}).sort({checkedAt:-1}).limit(1);
+export const getLastHeartbeatFromDB = (monitorId) => {
+    return Heartbeat.find({monitorId}).sort({checkedAt:-1}).limit(1).lean();
 }
 
 export const getHeartbeatSummary = async (monitorId, range) => {

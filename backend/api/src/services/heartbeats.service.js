@@ -1,4 +1,4 @@
-import { getHeartbeatsFromDB } from "../repositories/heartbeats.repository.js";
+import { getHeartbeatsFromDB, getLastHeartbeatFromDB } from "../repositories/heartbeats.repository.js";
 import AppError from "../utils/appError.js";
 
 
@@ -19,6 +19,6 @@ export const getHeartbeats = async (id,data) => {
 export const getLastHeartbeat = async(id) => {
     if (!id) throw new AppError(400, "Invalid or no ID provided");
 
-    const heartbeat = await getLastHeartbeat(id)||[];
+    const heartbeat = await getLastHeartbeatFromDB(id)||[];
     return heartbeat;
 }

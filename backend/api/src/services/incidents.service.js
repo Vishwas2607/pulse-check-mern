@@ -43,7 +43,7 @@ export const getIncidents = async(monitorId,data) => {
                 : now;
 
             return {
-                ...i.toObject(),
+                ...i,
                 isActive: !i.resolvedAt,
                 durationInSeconds: Math.max(0, Math.floor((end - start) / 1000)),
                 currentStatus: !i.resolvedAt ? "DOWN" : "UP"

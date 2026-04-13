@@ -36,14 +36,23 @@ export const createNewMonitor = async (userId,data) => {
 
 export const getMonitorStatus = async(monitorId,userId) => {
     const monitorDetail = await getOneMonitorFromDB(userId,monitorId) || [];
-    const lastIncident = await getCurrentIncidentFromDB(monitorId);
-    const start = new Date(lastIncident.startedAt).getTime();
-    const end = lastIncident.resolvedAt ? new Date(lastIncident.resolvedAt).getTime() : Date.now();
+    const [lastIncident] = await getCurrentIncidentFromDB(monitorId);
+    let isDown = false;
+    let duration = null;
+   if(lastIncident && lastIncident.startedAt) {
+        const start = new Date(lastIncident.startedAt).getTime();
+        const end = lastIncident.resolvedAt ? new Date(lastIncident.resolvedAt).getTime() : Date.now();
+        isDown = lastIncident.status === "open";
+        duration =  Math.max(0, Math.floor((end - start) / 1000));
+    }
 
+    const monitorToObj = monitorDetail.length === 0 ? monitorDetail: monitorDetail.toObject();
     return {
-        ...monitorDetail,
-        isDown: lastIncident.status === "open",
-        durationInSeconds: Math.max(0, Math.floor((end - start) / 1000)),
+        monitor: {...monitorToObj},
+        status: {
+            isDown: isDown,
+            durationInSeconds:duration
+        }
     }
 }
 

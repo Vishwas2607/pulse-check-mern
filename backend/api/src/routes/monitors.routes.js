@@ -8,7 +8,7 @@ const monitorRouter = express.Router();
 
 monitorRouter.post("/", createMonitorController);
 monitorRouter.get("/", getMonitorsController);
-monitorRouter.get(":/id",verifyMonitorOwnership,getMonitorStatusController);
+monitorRouter.get("/:id",verifyMonitorOwnership,getMonitorStatusController);
 monitorRouter.patch("/:id",verifyMonitorOwnership,updateMonitorController);
 monitorRouter.delete("/:id", verifyMonitorOwnership, deleteMonitorController);
 monitorRouter.get("/:id/summary",verifyMonitorOwnership, getSummaryController);
