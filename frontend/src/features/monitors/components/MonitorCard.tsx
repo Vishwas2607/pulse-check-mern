@@ -50,7 +50,7 @@ export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident
     const isDown = status === "DOWN" ;
 
     return (
-        <li className={clsx("p-4 rounded-md card hover:scale-[1.01] cursor-pointer", bgstyle)} onClick={() => navigate(`/monitors/${id}`)}>
+        <li className={clsx("p-4 rounded-md cardWithoutHover hover:shadow-sm hover:scale-[1.01] cursor-pointer", bgstyle)} onClick={() => navigate(`/monitors/${id}`)}>
             <div className="flex justify-between items-start mb-4">
             <div>
                 <div className="card-title">URL: {url}</div>

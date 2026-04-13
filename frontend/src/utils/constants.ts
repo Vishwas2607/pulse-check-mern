@@ -1,6 +1,6 @@
 export const STATUS_STYLES = {
   UP: "text-green-500",
-  DOWN: "text-red-500",
+  DOWN: "text-red-500 animate-pulse",
   UNKNOWN: "text-gray-400"
 };
 

@@ -9,5 +9,5 @@ export const useLastHeartbeat = (id:string) => {
         staleTime: 5000
     })
 
-    return {data: query.data, lastHeartbeat: query.data?.lastHeartbeat ?? [],isLoading: query.isLoading,error: query.error, isFetching: query.isFetching}
+    return {data: query.data, lastHeartbeat: query.data?.lastHeartbeat?.[0] ,isLoading: query.isLoading,error: query.error, isFetching: query.isFetching}
 }

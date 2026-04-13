@@ -1,4 +1,4 @@
-type StatusType = "UP" | "DOWN";
+export type StatusType = "UP" | "DOWN" | "UNKNOWN";
 type LastIncidentType = {startedAt: string | null, resolvedAt: string | null}
 export type MonitorsType = {_id:string, url: string, interval:number, status:StatusType, lastIncident: LastIncidentType}
 
@@ -24,4 +24,10 @@ export interface GetLastHeartbeatType {
     responseTime: number | null,
     statusCode: number | null,
     error: string | null
+}
+
+export interface UIType {
+    state: StatusType,
+    showPulse: boolean,
+    showWarning: boolean
 }

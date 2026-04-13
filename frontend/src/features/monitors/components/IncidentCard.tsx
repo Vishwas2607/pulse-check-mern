@@ -1,32 +1,28 @@
 import type { GetIncidentstype } from "../types";
 import { Dot } from "lucide-react";
 import React from "react";
+import clsx from "clsx";
+import { STATUS_STYLES } from "../../../utils/constants";
 
 export const IncidentCard = React.memo(({_id,status,startedAt,resolvedAt,currentStatus,durationInSeconds,isActive}:GetIncidentstype)=> {
-    const [, forceUpdate] = React.useState(0);
-
-    React.useEffect(() => {
-    const time = setInterval(() => {
-        forceUpdate((x) => x + 1);
-    }, 60000);
-
-    return () => clearInterval(time);
-    }, []);
 
     const durationInMins = Math.floor(durationInSeconds/60)
-    const duration = isActive ? `Down for ${durationInMins}` : `Was down for ${durationInMins}`
+    const duration = isActive ? `Down for ${durationInMins}` : `Was down for ${durationInMins}`;
+    const statusStyle = isActive ? STATUS_STYLES.DOWN : STATUS_STYLES.UP;
     return (
-        <li>
-              <div>
-                <div>
-                  <span>Status: {status}</span>
+        <li className="w-full card bg-elevated">
+              <div className="flex-between">
+                <div className="card-content flex gap-6">
+                  <span className="card-title capitalize">Status: {status}</span>
                   {startedAt && <span>StartedAt: {new Date(startedAt).toLocaleDateString()}</span>}
                   {resolvedAt && <span>ResolvedAt: {new Date(resolvedAt).toLocaleDateString()}</span>}
                 </div>
-                <span><Dot size={16}/>{currentStatus}</span>
+                <div className={clsx("flex-center", statusStyle, (isActive && "animate-pulse"))}>
+                  <Dot size={16}/>
+                  <span className="">{currentStatus}</span></div>
               </div>
 
-              <div>Duration: {duration}</div>
+              <div className={clsx("card-title", isActive && "text-red-500/90")}>Duration: {duration}</div>
          </li>
     )
 });
