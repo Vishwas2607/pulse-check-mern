@@ -15,7 +15,7 @@ export const getMonitorsController = async(req,res) => {
 export const getMonitorStatusController = async(req,res) => {
     const monitorStatus = await getMonitorStatus(req.monitor,req.user);
 
-    return res.status(200).json({monitorStatus:monitorStatus})
+    return res.status(200).json(monitorStatus)
 }
 
 export const getSummaryController = async(req,res) => {

@@ -23,6 +23,7 @@ const MonitorDetails = () => {
       return () => clearInterval(time);
       }, []);
 
+  
   const {monitor, status,isLoading,error,isFetching} = useMonitorStatus(id);
   const {lastHeartbeat,isLoading:isLoadingHeartbeat, isFetching:isFetchingHeartbeat, error:isHeartbeatError} = useLastHeartbeat(id);
 

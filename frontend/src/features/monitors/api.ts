@@ -24,3 +24,8 @@ export async function getLastHeartbeat(id:string) {
     return response.data;
     
 }
+
+export async function getMonitorSummary(id:string) {
+    const response = await apiClient.get(`/monitors/${id}/summary`);
+    return response.data;
+}

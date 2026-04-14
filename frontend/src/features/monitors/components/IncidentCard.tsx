@@ -22,7 +22,7 @@ export const IncidentCard = React.memo(({_id,status,startedAt,resolvedAt,current
                   <span className="">{currentStatus}</span></div>
               </div>
 
-              <div className={clsx("card-title", isActive && "text-red-500/90")}>Duration: {duration}</div>
+              <div className={clsx("card-title", isActive && "text-red-500/90")}>Duration: {duration} mins</div>
          </li>
     )
 });

@@ -31,3 +31,10 @@ export interface UIType {
     showPulse: boolean,
     showWarning: boolean
 }
+
+export interface SummaryType {
+    uptimePercentage: number | null,
+    avgResponseTime: number | null,
+    totalDownTime: number | null,
+    failureCount: number | null
+}
