@@ -38,3 +38,10 @@ export interface SummaryType {
     totalDownTime: number | null,
     failureCount: number | null
 }
+
+export interface SeriesType {
+    timestamp:Date,
+    uptimePercentage: number | null,
+    avgResponseTime: number| null,
+    failureCount: number|null
+}

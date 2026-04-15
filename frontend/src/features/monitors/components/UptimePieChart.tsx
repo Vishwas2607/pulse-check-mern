@@ -21,19 +21,19 @@ const chartConfig = {
     label: "Percentage",
   },
   uptime: {
-    label: "Uptime",
-    color: "var(--chart-1)",
+    label: "Uptime (%)",
+    color: "var(--uptime)",
   },
   downTime: {
-    label: "Downtime",
-    color: "var(--chart-2)",
+    label: "Downtime (%)",
+    color: "var(--downtime)",
   },
 } satisfies ChartConfig
 
 export default function UptimePieChart({uptimePercentage}: {uptimePercentage: number}) {
     const chartData = [
-        { monitor: "Uptime", percentage: uptimePercentage, fill: "var(--chart-1)" },
-        { monitor: "Downtime", percentage: (100 - uptimePercentage), fill: "var(--chart-2)" },
+        { monitor: "Uptime", percentage: uptimePercentage, fill: "var(--uptime)" },
+        { monitor: "Downtime", percentage: (100 - uptimePercentage), fill: "var(--downtime)" },
     ]
 
     const uptimeDiff = uptimePercentage -(100-uptimePercentage);
@@ -52,28 +52,13 @@ export default function UptimePieChart({uptimePercentage}: {uptimePercentage: nu
         >
           <PieChart>
             <ChartTooltip
-              content={<ChartTooltipContent nameKey="Percentage" hideLabel />}
+              content={<ChartTooltipContent nameKey="Percentage" className="bg-gray-800"/>}
             />
             <Pie
               data={chartData}
               dataKey="percentage"
               outerRadius={120}
               labelLine={false}
-              label={({ payload, ...props }) => {
-                return (
-                  <text
-                    cx={props.cx}
-                    cy={props.cy}
-                    x={props.x}
-                    y={props.y}
-                    textAnchor={props.textAnchor}
-                    dominantBaseline={props.dominantBaseline}
-                    fill="var(--color-foreground)"
-                  >
-                    {payload.percentage}
-                  </text>
-                )
-              }}
               nameKey="monitor"
             />
           </PieChart>
@@ -84,7 +69,7 @@ export default function UptimePieChart({uptimePercentage}: {uptimePercentage: nu
           {message} {uptimeDiff > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing uptime percentage for last 30 days heartbeats.
+          Showing uptime percentage for last 24 hours heartbeats.
         </div>
       </CardFooter>
     </Card>
