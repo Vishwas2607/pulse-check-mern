@@ -8,13 +8,11 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts"
-import type { SeriesType } from "../types"
+import type { FailureSeries } from "../types"
 import { Card,CardHeader,CardFooter,CardTitle,CardDescription,CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import React from "react";
 
-type Props = {
-  data:SeriesType[]
-};
 
 const chartConfig = {
   responseTime: {
@@ -24,7 +22,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 
-export default function FailureCountChart({ data }: Props) {
+export const FailureCountChart = React.memo(({ data }: {data: FailureSeries[]}) => {
   const chartData = data.map((d) => ({
     time: dayjs(d.timestamp).format("HH:mm"),
     failures: d.failureCount ?? 0,
@@ -54,4 +52,15 @@ export default function FailureCountChart({ data }: Props) {
       </CardFooter>
     </Card>
   )
-}
+},
+  (prevProps, nextProps) => {
+    if (prevProps.data.length !== nextProps.data.length) return false;
+    return prevProps.data.every((item, index) => {
+      const nextItem = nextProps.data[index];
+      return (
+        item.timestamp.getTime() === nextItem.timestamp.getTime() &&
+        item.failureCount === nextItem.failureCount
+      );
+    });
+  }
+)

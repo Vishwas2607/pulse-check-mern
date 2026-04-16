@@ -1,5 +1,5 @@
 import { TrendingDown, TrendingUp } from "lucide-react"
-import { Pie, PieChart } from "recharts"
+import { Pie, PieChart,Label } from "recharts"
 
 import {
   Card,
@@ -16,6 +16,10 @@ import {
   type ChartConfig,
 } from "../../../components/ui/chart"
 
+
+import clsx from "clsx"
+import React from "react"
+
 const chartConfig = {
   visitors: {
     label: "Percentage",
@@ -30,17 +34,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export default function UptimePieChart({uptimePercentage}: {uptimePercentage: number}) {
+export const UptimePieChart = React.memo(({uptimePercentage}: {uptimePercentage: number})=> {
     const chartData = [
         { monitor: "Uptime", percentage: uptimePercentage, fill: "var(--uptime)" },
         { monitor: "Downtime", percentage: (100 - uptimePercentage), fill: "var(--downtime)" },
     ]
-
+    const isCritical = uptimePercentage < 99;
     const uptimeDiff = uptimePercentage -(100-uptimePercentage);
     const message = uptimeDiff > 0 ? `Uptime percentage leads downtime by ${uptimeDiff} ` : `Uptime percentage lags downtime by ${Math.abs(uptimeDiff)}`;
-
+    const cls = clsx(
+      "flex flex-col border-2 border-border",
+      {"border-destructive" : isCritical}
+    )
   return (
-    <Card className="flex flex-col">
+    <Card className={cls}>
       <CardHeader className="items-center pb-0">
         <CardTitle>Uptime VS Downtime</CardTitle>
         <CardDescription>This shows the uptime percentage checks of monitor with respect to downtime checks percentage.</CardDescription>
@@ -57,10 +64,18 @@ export default function UptimePieChart({uptimePercentage}: {uptimePercentage: nu
             <Pie
               data={chartData}
               dataKey="percentage"
+              innerRadius={80}
               outerRadius={120}
               labelLine={false}
               nameKey="monitor"
+              stroke="none"
+            >
+            <Label 
+            value={`${uptimePercentage}%`}
+            position="center"
+            className= "fill-foreground text-xl md:text-2xl font-bold"
             />
+            </Pie>
           </PieChart>
         </ChartContainer>
       </CardContent>
@@ -74,4 +89,4 @@ export default function UptimePieChart({uptimePercentage}: {uptimePercentage: nu
       </CardFooter>
     </Card>
   )
-}
+});

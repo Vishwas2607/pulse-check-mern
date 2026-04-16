@@ -8,13 +8,10 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts"
-import type { SeriesType } from "../types"
+import type { ResponseSeries } from "../types"
 import { Card,CardHeader,CardFooter,CardTitle,CardDescription,CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
-
-type Props = {
-  data: SeriesType[]
-}
+import React from "react";
 
 const chartConfig = {
   responseTime: {
@@ -24,10 +21,10 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 
-export default function ResponseTimeChart({ data }: Props) {
+export const ResponseTimeChart = React.memo(({ data }: {data:ResponseSeries[]}) => {
   const chartData = data.map((d) => ({
     time: dayjs(d.timestamp).format("HH:mm"),
-    response: d.avgResponseTime ?? 0,
+    response: d.avgResponseTime ? parseFloat(d.avgResponseTime.toFixed(2)) : null,
   }))
 
   return (
@@ -42,13 +39,15 @@ export default function ResponseTimeChart({ data }: Props) {
           <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.4}  />
           <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8}  />
           <YAxis  tickLine={false} axisLine={true} tickFormatter={(value)=> `${value}ms`}/>
-          <ChartTooltip content={<ChartTooltipContent className="bg-gray-800"/>} />
+          <ChartTooltip content={<ChartTooltipContent className="bg-gray-800" indicator="dot" formatter={(value)=> value===null ? "No Data (Gap)": `${value}%`}/>} />
           <Line
             type="monotone"
             dataKey="response"
             stroke="var(--responsetime)"
             strokeWidth={2}
             dot={false}
+            connectNulls={false}
+            activeDot={{r:4, fill:"red"}}
           />
         </LineChart>
       </ChartContainer>
@@ -60,4 +59,15 @@ export default function ResponseTimeChart({ data }: Props) {
       </CardFooter>
     </Card>
   )
-}
+},
+  (prevProps, nextProps) => {
+    if (prevProps.data.length !== nextProps.data.length) return false;
+    return prevProps.data.every((item, index) => {
+      const nextItem = nextProps.data[index];
+      return (
+        item.timestamp.getTime() === nextItem.timestamp.getTime() &&
+        item.avgResponseTime === nextItem.avgResponseTime
+      );
+    });
+  }
+)

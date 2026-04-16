@@ -45,3 +45,9 @@ export interface SeriesType {
     avgResponseTime: number| null,
     failureCount: number|null
 }
+
+
+export type UptimeSeries = Pick<SeriesType, 'timestamp' | 'uptimePercentage'>;
+export type ResponseSeries = Pick<SeriesType, 'timestamp' | "avgResponseTime">;
+export type FailureSeries = Pick<SeriesType, 'timestamp' | "failureCount">;
+ 
