@@ -80,39 +80,73 @@ export const getMonitors = async(userId) => {
 };
 
 export const getSummary = async (monitorId, range) => {
+  const validRange = range ? range : "24h"
+  const rangeStart = convertToDate(validRange);
+  const rangeEnd = new Date();
 
-    const rangeStart = convertToDate(range);
-    const rangeEnd = new Date();
+  const hourlyData =
+    (await getHourlyAggregate(monitorId, rangeStart, rangeEnd)) || [];
 
-    const hourlyData = await getHourlyAggregate(monitorId,rangeStart,rangeEnd) || [];
-    const [{openDownTime = 0}={}] = await getOpenIncidents(monitorId,rangeStart,rangeEnd) ;
+  const [{ openDownTime = 0 } = {}] =
+    await getOpenIncidents(monitorId, rangeStart, rangeEnd);
 
-    const initial = {
-        totalChecks: 0,
-        upChecks: 0,
-        totalResponseTime: 0,
-        totalDownTime: 0,
-        failureCount: 0
-        };
+  const initial = {
+    totalChecks: 0,
+    upChecks: 0,
+    totalResponseTime: 0,
+    totalDownTime: 0,
+    failureCount: 0,
+  };
 
-    const totals = hourlyData.reduce((acc,curr)=> {
-        acc.totalChecks += curr.totalChecks || 0;
-        acc.upChecks += curr.upChecks || 0;
-        acc.totalResponseTime += curr.totalResponseTime || 0;
-        acc.totalDownTime += curr.totalDownTime || 0;
-        acc.failureCount += curr.failureCount || 0;
-        return acc;
-    },initial)
+  // ✅ SERIES (for charts)
+  const series = hourlyData.map((curr) => {
+    const uptime =
+      curr.totalChecks === 0
+        ? null
+        : (curr.upChecks / curr.totalChecks) * 100;
 
+    const avgResponse =
+      curr.upChecks === 0
+        ? null
+        : parseFloat(
+            (curr.totalResponseTime / curr.upChecks).toFixed(2)
+          );
 
-    const summary = {
-    uptimePercentage : totals.totalChecks === 0 ? null : (totals.upChecks/totals.totalChecks)*100,
-    avgResponseTime : totals.upChecks === 0 ? null : parseFloat((totals.totalResponseTime/totals.upChecks).toFixed(2)),
-    totalDownTime : (totals.totalDownTime || 0) + (parseFloat((openDownTime/1000).toFixed(2)) || 0),
-    failureCount : totals.failureCount
+    return {
+      timestamp: curr.bucketStart,
+      uptimePercentage: uptime,
+      avgResponseTime: avgResponse,
+      failureCount: curr.failureCount || 0,
     };
+  });
 
-    return summary
+  // ✅ SUMMARY (for cards)
+  const totals = hourlyData.reduce((acc, curr) => {
+    acc.totalChecks += curr.totalChecks || 0;
+    acc.upChecks += curr.upChecks || 0;
+    acc.totalResponseTime += curr.totalResponseTime || 0;
+    acc.totalDownTime += curr.totalDownTime || 0;
+    acc.failureCount += curr.failureCount || 0;
+    return acc;
+  }, initial);
+
+  const summary = {
+    uptimePercentage:
+      totals.totalChecks === 0
+        ? null
+        : (totals.upChecks / totals.totalChecks) * 100,
+    avgResponseTime:
+      totals.upChecks === 0
+        ? null
+        : parseFloat(
+            (totals.totalResponseTime / totals.upChecks).toFixed(2)
+          ),
+    totalDownTime:
+      (totals.totalDownTime || 0) +
+      (parseFloat((openDownTime / 1000).toFixed(2)) || 0),
+    failureCount: totals.failureCount,
+  };
+  return { summary, series };
 };
 
 
