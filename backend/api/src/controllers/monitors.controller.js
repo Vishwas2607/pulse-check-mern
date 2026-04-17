@@ -19,7 +19,7 @@ export const getMonitorStatusController = async(req,res) => {
 }
 
 export const getSummaryController = async(req,res) => {
-    const summary = await getSummary(req.monitor,req.query.range)
+    const summary = await getSummary(req.monitor,req.validatedQuery.range)
 
     return res.status(200).json(summary);
 }

@@ -52,7 +52,13 @@ export const getMonitorStatus = async(monitorId,userId) => {
         status: {
             isDown: isDown,
             durationInSeconds:duration
-        }
+        },
+        ...(lastIncident && {lastIncident: {
+          ...lastIncident,
+          isActive: !lastIncident.resolvedAt,
+          durationInSeconds: duration,
+          currentStatus: !lastIncident.resolvedAt ? "DOWN" : "UP"
+        }})
     }
 }
 

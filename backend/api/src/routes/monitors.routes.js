@@ -3,6 +3,8 @@ import { createMonitorController, deleteMonitorController, getMonitorsController
 import heartBeatRouter from "./heartbeats.routes.js";
 import incidentRouter from "./incidents.routes.js";
 import verifyMonitorOwnership from "../middlewares/monitorOwnershipMiddleware.js";
+import { validateQuery } from "../middlewares/validationMiddleware.js";
+import { getSummaryQuerySchema } from "../../../../lib/schemas/monitor.validator.js";
 
 const monitorRouter = express.Router();
 
@@ -11,7 +13,7 @@ monitorRouter.get("/", getMonitorsController);
 monitorRouter.get("/:id",verifyMonitorOwnership,getMonitorStatusController);
 monitorRouter.patch("/:id",verifyMonitorOwnership,updateMonitorController);
 monitorRouter.delete("/:id", verifyMonitorOwnership, deleteMonitorController);
-monitorRouter.get("/:id/summary",verifyMonitorOwnership, getSummaryController);
+monitorRouter.get("/:id/summary",verifyMonitorOwnership,validateQuery(getSummaryQuerySchema), getSummaryController);
 monitorRouter.use("/:id/heartbeats",verifyMonitorOwnership, heartBeatRouter);
 monitorRouter.use("/:id/incidents",verifyMonitorOwnership, incidentRouter);
 

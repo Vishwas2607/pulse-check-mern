@@ -1,4 +1,5 @@
 import { isDev } from "../utils/constants.js";
+import {ZodError} from "zod";
 
 const errorHandler = (err,req,res,next)=> {
     let statusCode = err.statusCode || 500;
@@ -13,6 +14,16 @@ const errorHandler = (err,req,res,next)=> {
         statusCode = 401;
         message = "Token Expired";
     };
+
+    if(err instanceof ZodError) {
+        return res.status(400).json({
+            message: "Validation error",
+            errors: err.issues?.map(issue=> ({
+                path:issue.path.join("."),
+                message: issue.message
+            }))
+        })
+    }
 
     if(isDev){
         console.error(err.stack); 
