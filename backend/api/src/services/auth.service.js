@@ -1,4 +1,4 @@
-import { createUser, findByEmail } from "../repositories/user.repository.js";
+import { createUser, findByEmail, findById } from "../repositories/user.repository.js";
 import AppError from "../utils/appError.js";
 import bcrypt from "bcrypt";
 import { generateAccessToken } from "../utils/helpers.js";
@@ -41,4 +41,12 @@ export const loginUser = async (data) => {
     } else{
         throw new AppError(401,"Unauthorized");
     }
+}
+
+export const authMe = async(id) => {
+    const user = await findById(id);
+
+    if(!user) throw new AppError(404, "User not found");
+
+    return {username: user.username}
 }

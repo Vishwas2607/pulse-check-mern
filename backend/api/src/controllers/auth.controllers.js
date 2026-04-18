@@ -1,4 +1,4 @@
-import { loginUser, registerUser } from "../services/auth.service.js"
+import { authMe, loginUser, registerUser } from "../services/auth.service.js"
 import { accessTokenOptions } from "../utils/constants.js";
 
 export const registerUserController = async (req,res) => {
@@ -14,4 +14,9 @@ export const loginUserController = async(req,res) => {
 
     return res.cookie("accessToken", accessToken, accessTokenOptions)
     .status(200).json({message: "User successfully logged in.", data: {user:userData}});
+}
+
+export const authMeController = async(req,res) => {
+    const user = await authMe(req.user);
+    return res.status(200).json({authenticated:true, username: user.username});
 }

@@ -1,7 +1,7 @@
 import { createNewMonitor, deleteMonitorService, getMonitors, getMonitorStatus, getSummary, updateMonitorService } from "../services/monitors.service.js"
 
 export const createMonitorController = async(req,res) => {
-    const monitor = await createNewMonitor(req.user, req.body);
+    const monitor = await createNewMonitor(req.user, req.validatedBody);
     
     res.status(201).json({message: `Monitor created for url ${monitor.url}`});
 }
