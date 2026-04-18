@@ -1,3 +1,6 @@
+import {createMonitorSchema} from "../../../../lib/schemas/monitor.validator";
+import {z} from "zod";
+
 export type StatusType = "UP" | "DOWN" | "UNKNOWN";
 type LastIncidentType = {startedAt: string | null, resolvedAt: string | null}
 export type MonitorsType = {_id:string, url: string, interval:number, status:StatusType, lastIncident: LastIncidentType}
@@ -51,3 +54,4 @@ export type UptimeSeries = Pick<SeriesType, 'timestamp' | 'uptimePercentage'>;
 export type ResponseSeries = Pick<SeriesType, 'timestamp' | "avgResponseTime">;
 export type FailureSeries = Pick<SeriesType, 'timestamp' | "failureCount">;
  
+export type CreateMonitorType = z.infer<typeof createMonitorSchema>
