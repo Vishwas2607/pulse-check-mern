@@ -24,19 +24,22 @@ export const getIncidents = async(monitorId,data) => {
         };
 
     }
-    const incidents = await getIncidentCursorBased(query,20) || [];
+    const incidents = await getIncidentCursorBased(query,21) || [];
 
     const nextCursor = incidents.length ? JSON.stringify({
-                startedAt: incidents[incidents.length - 1].startedAt,
-                _id: incidents[incidents.length - 1]._id
+                startedAt: incidents[incidents.length - 2].startedAt,
+                _id: incidents[incidents.length - 2]._id
                 })
             : null;
 
-            console.log(nextCursor);
+    console.log(nextCursor);
+    let hasNextPage = false;
+    if(incidents && incidents.length === 21) hasNextPage=true;
 
     let now = Date.now();
 
-    const formattedIncidents = incidents.map(i => {
+    const formattedIncidents = incidents.map((i,index) => {
+            if(index===20) return 
             const start = new Date(i.startedAt).getTime();
             const end = i.resolvedAt
                 ? new Date(i.resolvedAt).getTime()
@@ -50,5 +53,5 @@ export const getIncidents = async(monitorId,data) => {
             };
         });
 
-    return {incidents:formattedIncidents, nextCursor: nextCursor};
+    return {incidents:formattedIncidents, nextCursor: nextCursor, hasNextPage:hasNextPage};
 }

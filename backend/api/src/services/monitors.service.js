@@ -8,7 +8,7 @@ import { convertToDate } from "../utils/helpers.js";
 export const createNewMonitor = async (userId,data) => {
 
     if(!data || !data.url || !data.interval) throw new AppError(400, "Either fields are empty or no data provided");
-    const monitor = await createMonitor({userId:userId,...data});
+    const monitor = await createMonitor({userId:userId, url:data.url, interval:Number(data.interval)});
 
     await monitorQueue.add(`monitor-check-${monitor._id}`, 
     {
@@ -65,7 +65,7 @@ export const getMonitorStatus = async(monitorId,userId) => {
 export const getMonitors = async(userId) => {
     const monitors = await getMonitorsFromDB(userId);
 
-    if(!monitors || monitors.length === 0) throw new AppError(404, "No monitors found");
+    if(!monitors || monitors.length === 0) return [];
     const monitorIds = monitors.map(m=>m._id.toString())
     const allMonitorStatus = await getRecentIncidentsBulk(monitorIds) || [];
 

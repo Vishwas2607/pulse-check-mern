@@ -1,12 +1,7 @@
-import {isDev} from "../utils/constants.js"
+import jwt from "jsonwebtoken";
 
 const authMiddleware = async(req,res,next) => {
-    if (isDev) {
-        console.warn("⚠️ DEV AUTH BYPASS ENABLED");
 
-        req.user = "69d8a062f1d38e4f931f6899"
-        return next();
-    }
     const token = req.cookies?.accessToken;
 
     if(!token) {
