@@ -4,6 +4,9 @@ import { Dot } from "lucide-react";
 import clsx from "clsx";
 import { STATUS_STYLES, STATUS_BG_STYLES } from "../../../utils/constants";
 import { useNavigate } from "react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteMonitor } from "../api";
+import { Link } from "react-router";
 
 const getMinutes = (from: string, to: number) => {
   return Math.max(
@@ -15,6 +18,7 @@ const getMinutes = (from: string, to: number) => {
 export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident}: MonitorsType) => {
     const [, forceUpdate] = React.useState(0);
     const navigate = useNavigate()
+    const queryClient = useQueryClient();
 
     React.useEffect(() => {
     const time = setInterval(() => {
@@ -23,6 +27,19 @@ export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident
 
     return () => clearInterval(time);
     }, []);
+
+    const {mutate,isPending} = useMutation({
+        mutationFn: async(id:string) => await deleteMonitor(id),
+        onSettled: () => {
+            queryClient.invalidateQueries({queryKey: ["monitors"]});
+        },
+        onSuccess: () => {
+            console.log("Monitor deleted successfully");
+        },
+        onError: (error) => {
+            console.error("Mutation error", error);
+        }
+    });
 
     let incidentMessage = "No incidents";
 
@@ -43,14 +60,14 @@ export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident
         else if (mins === 1) incidentMessage = "Was down for 1 min";
         else incidentMessage = `Was down for ${mins} mins`;
     }
-    }
+    };
 
     const bgstyle = STATUS_BG_STYLES[status] ?? STATUS_BG_STYLES["UNKNOWN"];
     const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES["UNKNOWN"];
     const isDown = status === "DOWN" ;
 
     return (
-        <li className={clsx("p-4 rounded-md cardWithoutHover hover:shadow-sm hover:scale-[1.01] cursor-pointer", bgstyle)} onClick={() => navigate(`/monitors/${id}`)}>
+        <li className={clsx("p-4 rounded-md cardWithoutHover hover:shadow-sm hover:scale-[1.01] cursor-pointer", bgstyle)}>
             <div className="flex justify-between items-start mb-4">
             <div>
                 <div className="card-title">URL: {url}</div>
@@ -63,8 +80,12 @@ export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident
             </div>
             </div>
 
-            <div className="card-content mt-2">
+            <div className="card-content mt-2 flex flex-col w-fit gap-main">
             {incidentMessage}
+            <div className="flex gap-main">
+                <Link className="btn-primary" to={`"/monitots/${id}`}>View Details</Link>
+                <button className="btn-danger w-fit disabled:btn-disabled" onClick={()=>mutate(id)} disabled={isPending}>{isPending ? "Deleting...": "Delete"}</button>
+            </div>
             </div>
         </li>
     )

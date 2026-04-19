@@ -1,6 +1,5 @@
-import { useParams } from "react-router";
-import { useIncidents } from "../features/monitors/hooks/useIncidents";
-import type { GetIncidentstype, UIType} from "../features/monitors/types";
+import { useNavigate, useParams } from "react-router";
+import type { UIType} from "../features/monitors/types";
 import { IncidentCard } from "../features/monitors/components/IncidentCard";
 import { useMonitorStatus } from "../features/monitors/hooks/useMonitor";
 import { Dot } from "lucide-react";
@@ -8,9 +7,12 @@ import React from "react";
 import { useLastHeartbeat } from "../features/monitors/hooks/useHeartbeats";
 import clsx from "clsx"
 import { normalizeStatus, getMonitorUiState, monitorBgStyle, monitorStatusStyle } from "../utils/helpers";
+import { Link } from "react-router";
 
 const MonitorDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   if(!id) return <p>Id is invalid</p>; // Will redirect to 404 page
 
   const [, forceUpdate] = React.useState(0);
@@ -24,10 +26,9 @@ const MonitorDetails = () => {
       }, []);
 
   
-  const {monitor, status,isLoading,error,isFetching} = useMonitorStatus(id);
+  const {monitor, status,isLoading,error,isFetching, lastIncident} = useMonitorStatus(id);
   const {lastHeartbeat,isLoading:isLoadingHeartbeat, isFetching:isFetchingHeartbeat, error:isHeartbeatError} = useLastHeartbeat(id);
 
-  const {incidents, nextCursor,isLoading:isIncidentLoading, isFetching:isIncidentFetching,error:isIncidentError} = useIncidents(id);
 
   if(isLoading) return <p>Loading...</p>
   if(error) return <p>Something went Wrong</p>
@@ -47,10 +48,10 @@ const MonitorDetails = () => {
   const statusStyle = monitorStatusStyle(ui.state);
 
   return (
-    <section className="container-app section gap-10">
+    <section className="container-main mx-auto ">
       <h1 className="text-title text-center">Monitor Details</h1>
 
-    <div className="container-main w-full gap-6 flex flex-col md:flex-row">
+    <div className="container-main w-full gap-6 flex flex-col md:flex-row mx-auto">
       <div className= {clsx("cardWithoutHover w-full hover:shadow-sm",bgStyle )}>
         <div className=" flex justify-between">
         <div className="flex flex-col gap-6">
@@ -58,6 +59,7 @@ const MonitorDetails = () => {
           <span className="card-title">Url: {monitor.url}</span>
           <span className="card-content">Interval: {monitor.interval}</span>
           {ui.showWarning && <span className="card-content text-red-500">Last check failed</span>}
+          <Link to={`/monitors/${monitor._id}/edit-monitor`} className="btn-primary mb-2 w-fit">Edit Monitor</Link>
         </div>
             <div className={clsx("flex-center h-full", statusStyle)}>
             <Dot size={16}/>
@@ -84,18 +86,20 @@ const MonitorDetails = () => {
         </div>
       </div>
 
-      <div className="container-main w-full">
+      <div className="container-main w-full mx-auto">
       <div className="card flex-center flex-col">
-        <h2 className="text-heading mb-6">Incident History</h2>
-      {incidents.length === 0 && <p>No incidents to show</p>}
-        <ul className="w-full flex flex-col gap-6">
-          {incidents.map((i:GetIncidentstype)=> (
-            <IncidentCard key={i._id} _id={i._id} startedAt={i.startedAt} resolvedAt={i.resolvedAt} status={i.status} isActive={i.isActive} durationInSeconds={i.durationInSeconds} currentStatus={i.currentStatus}/>
-          ))}
-        </ul>
+        <h2 className="text-heading mb-6">Recent Incident</h2>
+        {!lastIncident && <p>No Incidents to show</p>}
+        {lastIncident && <IncidentCard _id={lastIncident._id} status={lastIncident.status} startedAt={lastIncident.startedAt} resolvedAt={lastIncident.resolvedAt} currentStatus={lastIncident.currentStatus} durationInSeconds={lastIncident.durationInSeconds} isActive={lastIncident.isActive} />}
       {isFetching && <p className="w-full mt-6">Refreshing...</p>}
       </div>
       </div>
+
+      <div className="flex-center gap-main ">
+          <button  className="btn-secondary w-fit" onClick={()=> navigate(-1)}>Go Back</button>
+          <Link to={`/monitors/${id}/analytics`} className="btn-primary w-fit">View Analytics</Link>
+      </div>
+      
     </section>
   );
 };

@@ -19,6 +19,6 @@ export const useMonitorStatus = (id:string) => {
         refetchInterval:10000,
         staleTime: 5000
     })
-    return {data: query.data, monitor: query.data?.monitor, status: query.data?.status, isLoading: query.isLoading,error: query.error, isFetching: query.isFetching}
+    return {data: query.data, monitor: query.data?.monitor, status: query.data?.status, lastIncident:query.data?.lastIncident, isLoading: query.isLoading,error: query.error, isFetching: query.isFetching}
 
 }
