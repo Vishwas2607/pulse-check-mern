@@ -20,3 +20,7 @@ export const authMeController = async(req,res) => {
     const user = await authMe(req.user);
     return res.status(200).json({authenticated:true, username: user.username});
 }
+
+export const logoutController = async(req,res) => {
+    return res.clearCookie("accessToken", accessTokenOptions).status(200).json({message: "Logout successfully"})
+}
