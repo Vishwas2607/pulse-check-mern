@@ -4,13 +4,13 @@ import React from "react";
 import clsx from "clsx";
 import { STATUS_STYLES } from "../../../utils/constants";
 
-export const IncidentCard = React.memo(({_id,status,startedAt,resolvedAt,currentStatus,durationInSeconds,isActive}:GetIncidentstype)=> {
+export const IncidentCard = React.memo(({status,startedAt,resolvedAt,currentStatus,durationInSeconds,isActive}:GetIncidentstype)=> {
 
     const durationInMins = Math.floor(durationInSeconds/60)
     const duration = isActive ? `Down for ${durationInMins}` : `Was down for ${durationInMins}`;
     const statusStyle = isActive ? STATUS_STYLES.DOWN : STATUS_STYLES.UP;
     return (
-        <li className="w-full card bg-elevated">
+        <div className="w-full">
               <div className="flex-between">
                 <div className="card-content flex gap-6">
                   <span className="card-title capitalize">Status: {status}</span>
@@ -19,11 +19,11 @@ export const IncidentCard = React.memo(({_id,status,startedAt,resolvedAt,current
                 </div>
                 <div className={clsx("flex-center", statusStyle, (isActive && "animate-pulse"))}>
                   <Dot size={16}/>
-                  <span className="">{currentStatus}</span></div>
+                  <span>{currentStatus}</span></div>
               </div>
 
               <div className={clsx("card-title", isActive && "text-red-500/90")}>Duration: {duration} mins</div>
-         </li>
+         </div>
     )
 });
 
