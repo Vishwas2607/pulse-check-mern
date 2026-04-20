@@ -3,6 +3,10 @@ import { Heartbeat } from "../models/heartbeats.model.js"
 export const getHeartbeatsFromDB = (monitorId,skip,limit) => {
     return Heartbeat.find({monitorId}).sort({checkedAt: -1}).skip(skip).limit(limit)
 }
+
+export const getHeartbeatCursorBased = (query,limit) => {
+    return Heartbeat.find(query).sort({checkedAt:-1, _id:-1}).limit(limit).lean()
+}
 export const getLastHeartbeatFromDB = (monitorId) => {
     return Heartbeat.find({monitorId}).sort({checkedAt:-1}).limit(1).lean();
 }

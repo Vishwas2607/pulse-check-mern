@@ -17,8 +17,7 @@ const heartBeatSchema = new mongoose.Schema({
     }
 });
 
-// { monitorId: 1, checkedAt: -1 }
 
-heartBeatSchema.index({monitorId:1, checkedAt:1});
+heartBeatSchema.index({monitorId:1, checkedAt:-1, _id:-1});
 heartBeatSchema.index({monitorId:1, checkKey:1}, {unique:true})
 export const Heartbeat = mongoose.model("Heartbeat", heartBeatSchema);

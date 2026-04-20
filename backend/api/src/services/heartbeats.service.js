@@ -1,19 +1,44 @@
-import { getHeartbeatsFromDB, getLastHeartbeatFromDB } from "../repositories/heartbeats.repository.js";
+import { getLastHeartbeatFromDB, getHeartbeatCursorBased } from "../repositories/heartbeats.repository.js";
 import AppError from "../utils/appError.js";
 
 
 export const getHeartbeats = async (id,data) => {
 
     if (!id) throw new AppError(400, "Invalid or no ID provided");
-    if(!data.page)data.page = 1;
-    if(!data.limit) data.limit = 10;
+    
+    const {cursor} = data;
 
-    const {page,limit} = data;
-    const skip = (page-1) * limit;
+    let query = {monitorId: id};
+    const limit = 20;
 
-    const heartbeats = await getHeartbeatsFromDB(id,skip, limit);
-    if(!heartbeats || heartbeats.length === 0) throw new AppError(400, "No heartbeats yet")
-    return heartbeats
+    if(cursor){
+
+        try{
+            const parsedCursor = JSON.parse(cursor);
+            if(parsedCursor.checkedAt && parsedCursor._id){
+                const cursorDate = new Date(parsedCursor.checkedAt);
+
+                query.$or = [
+                    {checkedAt: {$lt: cursorDate}},
+                    {checkedAt: cursorDate, _id: {$lt: parsedCursor._id}}
+                ]
+            }
+        } catch (err) {
+            console.error("Failed to parse JSON", err);
+        }
+    }
+
+    const heartbeats = await getHeartbeatCursorBased(query,limit + 1) || [];
+
+    const hasNextPage = heartbeats.length > limit;
+    const resultsToReturn = heartbeats.slice(0,limit);
+
+    const nextCursor = hasNextPage ? JSON.stringify({
+        checkedAt: resultsToReturn[resultsToReturn.length-1].checkedAt,
+        _id: resultsToReturn[resultsToReturn.length -1]._id
+    }) : null
+    
+    return {heartbeats: resultsToReturn, nextCursor: nextCursor, hasNextPage:hasNextPage};
 }
 
 export const getLastHeartbeat = async(id) => {
