@@ -1,5 +1,5 @@
 import apiClient from "../../api/client";
-import type { CreateMonitorType, IncidentResponseType } from "./types";
+import type { CreateMonitorType, HeartbeatResponseType, IncidentResponseType, RangeType } from "./types";
 
 export async function getMonitors () {
 
@@ -42,7 +42,12 @@ export async function getLastHeartbeat(id:string) {
     
 }
 
-export async function getMonitorSummary(id:string,query:string) {
-    const response = await apiClient.get(`/monitors/${id}/summary?range=${query}`);
+export async function getMonitorSummary(id:string,range:RangeType) {
+    const response = await apiClient.get(`/monitors/${id}/summary?range=${range}`);
     return response.data;
+}
+
+export async function getHeartbeats(id:string, nextCursor:string):Promise<HeartbeatResponseType> {
+    const response = await apiClient.get(`/monitors/${id}/heartbeats?cursor=${nextCursor}`)
+    return response.data
 }

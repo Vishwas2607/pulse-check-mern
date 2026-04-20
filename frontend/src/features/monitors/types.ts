@@ -12,7 +12,7 @@ export interface GetMonitorsType {
 
 export interface GetIncidentstype {
     _id:string,
-    status: "Open" | "resolved",
+    status: "open" | "resolved",
     startedAt:  Date | null | undefined,
     resolvedAt: Date| null | undefined,
     isActive: boolean,
@@ -53,5 +53,18 @@ export interface SeriesType {
 export type UptimeSeries = Pick<SeriesType, 'timestamp' | 'uptimePercentage'>;
 export type ResponseSeries = Pick<SeriesType, 'timestamp' | "avgResponseTime">;
 export type FailureSeries = Pick<SeriesType, 'timestamp' | "failureCount">;
+export type RangeType = "24h" | "7d" | "15d" | "30d";
  
 export type CreateMonitorType = z.infer<typeof createMonitorSchema>
+
+export interface IncidentResponseType {
+    incidents: GetIncidentstype[],
+    nextCursor: string,
+    hasNextPage: boolean
+}
+
+export interface HeartbeatResponseType {
+    heartbeats: GetLastHeartbeatType[],
+    nextCursor: string,
+    hasNextPage: boolean
+}

@@ -15,6 +15,7 @@ import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 import {AnimatePresence,motion} from "framer-motion"
 import {Squash as Hamburger} from "hamburger-react"
+import Heartbeats from './pages/HeartbeatsPage'
 
 function App() {
 
@@ -61,6 +62,7 @@ function App() {
         <Route path="/monitors/:id" element={<MonitorDetails/>}/>
         <Route path="/monitors/:id/edit-monitor" element={<CreateMonitor/>}/>
         <Route path="/monitors/:id/analytics" element={<MonitorAnalytics/>}/>
+        <Route path="/monitors/:id/heartbeats" element={<Heartbeats/>}/>
         <Route path="/monitors/:id/incidents" element={<Incidents/>} />
       </Route>
 
