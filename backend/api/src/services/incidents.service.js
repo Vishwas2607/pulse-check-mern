@@ -7,39 +7,36 @@ export const getIncidents = async(monitorId,data) => {
 
     const {cursor} = data;
     let query = {monitorId:monitorId};
-
+    const limit = 20;
     if (cursor) {
-        let data
         try {
-            data = cursor ? JSON.parse(cursor) : {}; 
-            if(data.startedAt && data._id) {
+            const parsedData = JSON.parse(cursor); 
+            if(parsedData.startedAt && parsedData._id) {
+                const parsedDataDate = new Date(parsedData.startedAt)
                 query.$or = [
-                    {startedAt: {$lt: new Date(data.startedAt)}},
-                    {startedAt: new Date(data.startedAt), _id: {$lt: data._id}}
+                    {startedAt: {$lt: parsedDataDate}},
+                    {startedAt: parsedDataDate, _id: {$lt: data._id}}
                 ]
             }
         } catch (e) {
             console.error("Failed to parse JSON:", e);
-            data = {};
         };
 
     }
-    const incidents = await getIncidentCursorBased(query,21) || [];
+    const incidents = await getIncidentCursorBased(query,limit+1) || [];
 
-    const nextCursor = incidents.length ? JSON.stringify({
-                startedAt: incidents[incidents.length - 2].startedAt,
-                _id: incidents[incidents.length - 2]._id
+    const hasNextPage = incidents.length > limit;
+    const resultsToReturn = incidents.slice(0,limit);
+
+    const nextCursor = hasNextPage ? JSON.stringify({
+                startedAt: resultsToReturn[resultsToReturn.length - 1].startedAt,
+                _id: resultsToReturn[resultsToReturn.length - 1]._id
                 })
             : null;
 
-    console.log(nextCursor);
-    let hasNextPage = false;
-    if(incidents && incidents.length === 21) hasNextPage=true;
+    const now = Date.now();
 
-    let now = Date.now();
-
-    const formattedIncidents = incidents.map((i,index) => {
-            if(index===20) return 
+    const formattedIncidents = resultsToReturn.map(i => {
             const start = new Date(i.startedAt).getTime();
             const end = i.resolvedAt
                 ? new Date(i.resolvedAt).getTime()
