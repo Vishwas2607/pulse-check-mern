@@ -1,16 +1,17 @@
 import { monitorQueue } from "../queues/monitor.queue.js";
 import { getHourlyAggregate } from "../repositories/hourlyAggregate.repository.js";
-import { getCurrentIncidentFromDB, getOpenIncidents, getRecentIncidentsBulk} from "../repositories/incidents.repository.js";
+import { getCurrentIncidentFromDB, getOpenIncidents, getRecentIncidentsBulk,deleteIncidentsByMonitor} from "../repositories/incidents.repository.js";
+import {deleteHeartbeatsByMonitor} from "../repositories/heartbeats.repository.js"
 import { createMonitor, getMonitorsFromDB, updateMonitor,deleteMonitor, getOneMonitorFromDB} from "../repositories/monitors.repository.js"
 import AppError from "../utils/appError.js"
-import { convertToDate } from "../utils/helpers.js";
+import { convertToDate, getBinSize } from "../utils/helpers.js";
 
 export const createNewMonitor = async (userId,data) => {
 
     if(!data || !data.url || !data.interval) throw new AppError(400, "Either fields are empty or no data provided");
     const monitor = await createMonitor({userId:userId, url:data.url, interval:Number(data.interval)});
 
-    await monitorQueue.add(`monitor-check-${monitor._id}`, 
+    await monitorQueue.add(`monitor-check-${monitor._id}`,
     {
         monitorId: monitor._id,
         url : monitor.url,
@@ -90,8 +91,15 @@ export const getSummary = async (monitorId, range) => {
   const rangeStart = convertToDate(validRange);
   const rangeEnd = new Date();
 
-  const hourlyData =
-    (await getHourlyAggregate(monitorId, rangeStart, rangeEnd)) || [];
+  const binSize = getBinSize(rangeStart,rangeEnd)
+  const hourlyData = await getHourlyAggregate(monitorId, rangeStart, rangeEnd,binSize) || [];
+
+  const series = hourlyData?.map((h)=> ({
+    timestamp: h._id,
+    uptimePercentage: h.totalChecks === 0 ? null:  ((h.upChecks || 0)/h.totalChecks)*100,
+    avgResponseTime:h.totalChecks === 0 ? null : h.totalResponseTime/h.totalChecks,
+    failureCount: h.failureCount
+  }))
 
   const [{ openDownTime = 0 } = {}] =
     await getOpenIncidents(monitorId, rangeStart, rangeEnd);
@@ -100,38 +108,15 @@ export const getSummary = async (monitorId, range) => {
     totalChecks: 0,
     upChecks: 0,
     totalResponseTime: 0,
-    totalDownTime: 0,
+    downtime: 0,
     failureCount: 0,
   };
 
-  // ✅ SERIES (for charts)
-  const series = hourlyData.map((curr) => {
-    const uptime =
-      curr.totalChecks === 0
-        ? null
-        : (curr.upChecks / curr.totalChecks) * 100;
-
-    const avgResponse =
-      curr.upChecks === 0
-        ? null
-        : parseFloat(
-            (curr.totalResponseTime / curr.upChecks).toFixed(2)
-          );
-
-    return {
-      timestamp: curr.bucketStart,
-      uptimePercentage: uptime,
-      avgResponseTime: avgResponse,
-      failureCount: curr.failureCount || 0,
-    };
-  });
-
-  // ✅ SUMMARY (for cards)
   const totals = hourlyData.reduce((acc, curr) => {
     acc.totalChecks += curr.totalChecks || 0;
     acc.upChecks += curr.upChecks || 0;
     acc.totalResponseTime += curr.totalResponseTime || 0;
-    acc.totalDownTime += curr.totalDownTime || 0;
+    acc.downtime += curr.downtime || 0;
     acc.failureCount += curr.failureCount || 0;
     return acc;
   }, initial);
@@ -145,14 +130,14 @@ export const getSummary = async (monitorId, range) => {
       totals.upChecks === 0
         ? null
         : parseFloat(
-            (totals.totalResponseTime / totals.upChecks).toFixed(2)
+            (totals.totalResponseTime / (totals.upChecks)).toFixed(2)
           ),
     totalDownTime:
-      (totals.totalDownTime || 0) +
+      (parseFloat(totals.downtime?.toFixed(2)) || 0) +
       (parseFloat((openDownTime / 1000).toFixed(2)) || 0),
     failureCount: totals.failureCount,
   };
-  return { summary, series };
+  return { summary, series:series };
 };
 
 
@@ -195,6 +180,6 @@ export const deleteMonitorService = async(monitorId) => {
     await deleteIncidentsByMonitor(monitorId);
 
     await Promise.all(matchedJobs.map(job => monitorQueue.removeJobScheduler(job.id)));
-
+    console.log(deletedMonitor)
     return deletedMonitor;
 }

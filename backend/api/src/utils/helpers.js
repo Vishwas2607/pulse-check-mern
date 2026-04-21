@@ -25,3 +25,11 @@ export const convertToDate = (range) => {
 
     return date;
 };
+
+export const getBinSize = (rangeStart, rangeEnd) => {
+  const totalMs = rangeEnd - rangeStart;
+  const totalHours = totalMs / (1000 * 60 * 60);
+  const targetPoints = Math.min(60, Math.max(30, totalHours / 2));
+
+  return Math.max(1, Math.ceil(totalHours / targetPoints));
+};
