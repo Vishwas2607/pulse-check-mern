@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme{
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
+
+  @keyframes shimmer{
+    0% {transform: translateX(-100%)}
+    100% {transform: translateX(100%)}
+  }
+}
 
 @utility container-main {
   @apply max-w-7xl p-4 sm:p-6 lg:p-8;
