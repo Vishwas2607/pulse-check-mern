@@ -20,4 +20,10 @@ const heartBeatSchema = new mongoose.Schema({
 
 heartBeatSchema.index({monitorId:1, checkedAt:-1, _id:-1});
 heartBeatSchema.index({monitorId:1, checkKey:1}, {unique:true})
+
+heartBeatSchema.index(
+    {checkedAt:1},
+    {expireAfterSeconds:86400}
+)
+
 export const Heartbeat = mongoose.model("Heartbeat", heartBeatSchema);
