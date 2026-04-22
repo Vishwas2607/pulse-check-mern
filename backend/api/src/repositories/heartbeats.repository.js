@@ -35,3 +35,7 @@ export const getHeartbeatSummary = async (monitorId, range) => {
 export const deleteHeartbeatsByMonitor = (monitorId) => {
     return Heartbeat.findByIdAndDelete(monitorId);
 }
+
+export const createHeartbeat = (data) => {
+    return Heartbeat.create(data)
+}

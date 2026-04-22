@@ -4,6 +4,10 @@ export const createMonitor = (data) => {
     return Monitor.create(data)
 }
 
+export const getMonitorByMonitorId = async(monitorId) => {
+    return await Monitor.findById(monitorId);
+}
+
 export const getMonitorsFromDB = (userId) => {
     return Monitor.find({userId}).lean();
 }

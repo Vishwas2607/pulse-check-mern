@@ -9,6 +9,14 @@ export const getCurrentIncidentFromDB = (monitorId) => {
     return Incident.find({monitorId}).sort({startedAt: -1}).limit(1).lean();
 };
 
+export const createIncident = async(data) => {
+    return Incident.create(data);
+};
+
+export const updateIncident = async(monitorId) => {
+    return Incident.findOneAndUpdate({monitorId, status:"open"}, {status:"resolved", resolvedAt: new Date()}, {runValidators:true, returnDocument:"before"})
+}
+
 export const getRecentIncidentsBulk = (monitorIds) => {
     const pipeline = [
         {
