@@ -5,11 +5,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {loginSchema} from "../../../lib/schemas/auth.validator"
 import { Link, useNavigate } from "react-router";
 import { postLogin } from "@/features/auth/api";
+import { useAuthentication } from "@/features/auth/context/AuthenticationContext";
+import { toast } from "sonner";
+import axios, { AxiosError } from "axios";
+import { checkErrorMsg } from "@/utils/helpers";
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [error,setError] = useState("");
     const navigate = useNavigate();
+    const {verifyAuth} = useAuthentication()
     
     const {register, handleSubmit, formState: {errors, isSubmitting,isValid}} = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -20,19 +25,25 @@ export default function Login() {
         try {
             setError("");
             const result = await postLogin(data);
+
             if(result.message) {
+                await verifyAuth();
+                toast.success(result.message)
                 navigate("/monitors")
             }
         } catch(err) {
-            console.error(err);
-            setError(err instanceof Error ? err.message : "Something went wrong")
+            const errorMsg = checkErrorMsg(err);
+            toast.error("Failed to login", {
+                description: errorMsg
+            })
+            setError(errorMsg)
         }
     };
 
     return (
         <section className="section w-full flex-center mt-10"> 
                     <div className="w-100 sm:w-120 px-5 md:w-150 lg:w-170">
-                        <h2 className="text-title mb-5 text-center">Enter Login Credentails <span className="ml-2 text-indigo-500">(PulseCheck)</span></h2>
+                        <h1 className="text-title mb-5 text-center">Enter Login Credentails <span className="ml-2 text-indigo-500">(PulseCheck)</span></h1>
                         <form className="flex flex-col gap-6 md:text-lg px-5" onSubmit={handleSubmit(onSubmit)}>
                             <div className="input-wrapper">
                                 <label htmlFor="email" className="input-label">Email: </label>

@@ -1,7 +1,8 @@
 import { postLogout } from "@/features/auth/api";
 import { useAuthentication } from "@/features/auth/context/AuthenticationContext";
-import { Monitor, HomeIcon,LucideLogIn, UserPlus } from "lucide-react";
+import { Monitor, HomeIcon,LucideLogIn, UserPlus, Plus} from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 export default function Sidebar(){
     const{authenticatedDetails,verifyAuth} = useAuthentication();
@@ -11,11 +12,15 @@ export default function Sidebar(){
         try{
             const result = await postLogout();
             await verifyAuth();
+            toast.warning(result.messge, {
+                description: "You have been securely signed out."
+            })
             navigate("/login", {replace:true});
 
-            console.log(result.message)
         } catch (err) {
-            console.error(err);
+            toast.error("Failed to logout", {
+                description: err instanceof Error ? err.message : "Something went wrong, try again"
+            })
         }
     };
 
@@ -32,7 +37,8 @@ export default function Sidebar(){
             {authenticatedDetails.authenticated === "authenticated" && (
                 <>
                 <NavLink to={"/monitors"} className={({isActive})=> isActive ? "active-sidebar-link": "sidebar-link"}><Monitor/>Monitors</NavLink>
-                
+                <NavLink to={"/add-monitor"} className={({isActive})=> isActive ? "active-sidebar-link": "sidebar-link"}><span className="relative inline-block"><Monitor/> <Plus className="absolute top-1 left-1.5 " size={12}/></span>Add Monitor</NavLink>
+
                 <div className="w-full flex-1 flex justify-center items-end mb-12">
                     <button className="btn btn-danger" onClick={handleClick}>Logout</button>
                 </div>

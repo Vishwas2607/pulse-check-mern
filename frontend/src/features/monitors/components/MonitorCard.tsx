@@ -3,10 +3,10 @@ import React from "react"
 import { Dot } from "lucide-react";
 import clsx from "clsx";
 import { STATUS_STYLES, STATUS_BG_STYLES } from "../../../utils/constants";
-import { useNavigate } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteMonitor } from "../api";
 import { Link } from "react-router";
+import { toast } from "sonner";
 
 const getMinutes = (from: string, to: number) => {
   return Math.max(
@@ -16,17 +16,7 @@ const getMinutes = (from: string, to: number) => {
 };
 
 export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident}: MonitorsType) => {
-    const [, forceUpdate] = React.useState(0);
-    const navigate = useNavigate()
     const queryClient = useQueryClient();
-
-    React.useEffect(() => {
-    const time = setInterval(() => {
-        forceUpdate((x) => x + 1);
-    }, 60000);
-
-    return () => clearInterval(time);
-    }, []);
 
     const {mutate,isPending} = useMutation({
         mutationFn: async(id:string) => await deleteMonitor(id),
@@ -34,9 +24,14 @@ export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident
             queryClient.invalidateQueries({queryKey: ["monitors"]});
         },
         onSuccess: () => {
-            console.log("Monitor deleted successfully");
+            toast.warning("Monitor deleted", {
+                description: "You can no longer track this monitor"
+            })
         },
         onError: (error) => {
+            toast.error("Failed to delete monitor", {
+                description: error.message
+            })
             console.error("Mutation error", error);
         }
     });
@@ -83,7 +78,7 @@ export const MonitorCard = React.memo(({_id:id, url,interval,status,lastIncident
             <div className="card-content mt-2 flex flex-col w-fit gap-main">
             {incidentMessage}
             <div className="flex gap-main">
-                <Link className="btn-primary" to={`"/monitots/${id}`}>View Details</Link>
+                <Link className="btn-primary" to={`/monitors/${id}`}>View Details</Link>
                 <button className="btn-danger w-fit disabled:btn-disabled" onClick={()=>mutate(id)} disabled={isPending}>{isPending ? "Deleting...": "Delete"}</button>
             </div>
             </div>

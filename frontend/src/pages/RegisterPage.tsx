@@ -5,6 +5,8 @@ import { registerSchemaExtended, type RegisterFormValues } from "@/features/auth
 import {zodResolver} from "@hookform/resolvers/zod";
 import { postRegister } from "@/features/auth/api";
 import { Link } from "react-router";
+import { toast } from "sonner";
+import { checkErrorMsg } from "@/utils/helpers";
 
 export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
@@ -22,17 +24,21 @@ export default function Register() {
             const dataToPost = {username:data.username, email:data.email, password:data.password}
             const result = await postRegister(dataToPost);
             if (result?.message) {
-                console.log(result.message)
+                toast.success(result.message)
                 navigate("/login", {replace:true})
             }
         } catch (err) {
-            console.error(err);
-            setError(err instanceof Error ? err.message : "Something went wrong")
+            const errorMsg = checkErrorMsg(err);
+
+            toast.error("Failed to register", {
+                description: errorMsg
+            })
+            setError(errorMsg)
         }
     }
 
     return (
-        <section className="section w-full flex-center mt-10">
+        <section className="section w-full flex-center">
                 <div className="w-100 sm:w-120 px-5 md:w-150 lg:w-170">
                 <h2 className="text-title text-center mb-5">Create an Account <span className="ml-2 text-indigo-500">(PulseCheck)</span></h2>
                 <form className="flex flex-col gap-6 md:text-lg px-5" onSubmit={handleSubmit(onSubmit)}>
