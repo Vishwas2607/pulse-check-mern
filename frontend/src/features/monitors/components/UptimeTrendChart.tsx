@@ -7,10 +7,11 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts"
-import type { UptimeSeries} from "../types";
+import type { RangeType, UptimeSeries} from "../types";
 import { Card,CardHeader,CardFooter,CardTitle,CardDescription,CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import React from "react";
+import { formatXAxis } from "@/utils/helpers";
 
 const chartConfig = {
   uptime: {
@@ -20,25 +21,25 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 
-export const UptimeTrendChart = React.memo(({ data }: {data:UptimeSeries[]}) => {
+export const UptimeTrendChart = React.memo(({ data, range }: {data:UptimeSeries[],range: RangeType}) => {
   const chartData = data.map((d) => ({
-    time: dayjs(d.timestamp).format("HH:mm"),
+    time: d.timestamp,
     uptime: d.uptimePercentage ? parseFloat(d.uptimePercentage.toFixed(2)) : null,
   }))
 
   return (
     <Card>
       <CardHeader className="items-center pb-0">
-        <CardTitle>Uptime Percentage / Hour</CardTitle>
-        <CardDescription>This shows the uptime percentage per hour of the monitor.</CardDescription>
+        <CardTitle>Uptime Percentage</CardTitle>
+        <CardDescription>This shows the uptime percentage per {range === "24h" ? "hour": "day"} of the monitor.</CardDescription>
       </CardHeader>
       <CardContent>
           <ChartContainer config={chartConfig} className="h-75 w-full">
             <LineChart data={chartData} margin={{ right:25, top:12}}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.4} />
-              <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} />
+              <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value)=>formatXAxis(value,range)} minTickGap={30}/>
               <YAxis domain={[0, 100]} tickLine={false} axisLine={true} tickFormatter={(value)=> `${value}%`} />
-              <ChartTooltip content={<ChartTooltipContent className="bg-gray-800" indicator="dot" formatter={(value)=> value===null ? "No Data (Gap)": `${value}%`}/>} />
+              <ChartTooltip content={<ChartTooltipContent className="bg-gray-800" indicator="dot" labelFormatter={(value) => dayjs(value).format("MMM DD, YYYY HH:mm")} formatter={(value)=> value===null ? "No Data (Gap)": `${value}%`}/>} />
               <Line
                 type="monotone"
                 dataKey="uptime"
@@ -53,7 +54,7 @@ export const UptimeTrendChart = React.memo(({ data }: {data:UptimeSeries[]}) => 
       </CardContent>
       <CardFooter className="bg-gray-800">
         <div className="leading-none text-center w-full text-muted-foreground">
-            Showing uptime percentage for last 24 hours heartbeats.
+            Showing uptime percentage for last {range} heartbeats.
         </div>
       </CardFooter>
     </Card>
@@ -61,12 +62,6 @@ export const UptimeTrendChart = React.memo(({ data }: {data:UptimeSeries[]}) => 
 },
   (prevProps, nextProps) => {
     if (prevProps.data.length !== nextProps.data.length) return false;
-    return prevProps.data.every((item, index) => {
-      const nextItem = nextProps.data[index];
-      return (
-        item.timestamp.getTime() === nextItem.timestamp.getTime() &&
-        item.uptimePercentage === nextItem.uptimePercentage
-      );
-    });
+    return prevProps.range === nextProps.range && prevProps.data === nextProps.data;
   }
 )

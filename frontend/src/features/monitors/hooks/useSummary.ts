@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
 import { getMonitorSummary} from "../api"
+import type { RangeType } from "../types"
 
-export const useSummary = (id:string,inpQuery:string) => {
+export const useSummary = (id:string,range:RangeType) => {
     const query = useQuery({
-        queryKey: ["summary", id],
-        queryFn: () => getMonitorSummary(id,inpQuery),
+        queryKey: ["summary", id,range],
+        queryFn: () => getMonitorSummary(id,range),
         refetchInterval:60000,
         staleTime:10000
     })

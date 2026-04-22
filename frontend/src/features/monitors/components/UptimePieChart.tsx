@@ -19,6 +19,7 @@ import {
 
 import clsx from "clsx"
 import React from "react"
+import type { RangeType } from "../types"
 
 const chartConfig = {
   visitors: {
@@ -34,14 +35,16 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export const UptimePieChart = React.memo(({uptimePercentage}: {uptimePercentage: number})=> {
+export const UptimePieChart = React.memo(({uptimePercentage, range}: {uptimePercentage: number, range:RangeType})=> {
+    
     const chartData = [
         { monitor: "Uptime", percentage: uptimePercentage, fill: "var(--uptime)" },
         { monitor: "Downtime", percentage: (100 - uptimePercentage), fill: "var(--downtime)" },
     ]
     const isCritical = uptimePercentage < 99;
     const uptimeDiff = uptimePercentage -(100-uptimePercentage);
-    const message = uptimeDiff > 0 ? `Uptime percentage leads downtime by ${uptimeDiff} ` : `Uptime percentage lags downtime by ${Math.abs(uptimeDiff)}`;
+    const message = uptimeDiff > 0 ? `Uptime percentage leads downtime by ${uptimeDiff.toFixed(2)} ` : `Uptime percentage lags downtime by ${Math.abs(parseFloat(uptimeDiff.toFixed(2)))}`;
+    
     const cls = clsx(
       "flex flex-col border-2 border-border",
       {"border-destructive" : isCritical}
@@ -84,7 +87,7 @@ export const UptimePieChart = React.memo(({uptimePercentage}: {uptimePercentage:
           {message} {uptimeDiff > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing uptime percentage for last 24 hours heartbeats.
+          Showing uptime percentage for last {range} hours heartbeats.
         </div>
       </CardFooter>
     </Card>
