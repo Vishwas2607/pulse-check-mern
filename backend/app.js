@@ -37,9 +37,12 @@ const authLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
+const isTest = process.env.NODE_ENV === "test";
 
-app.use("/api/auth",authLimiter);
-app.use("/api", generalLimiter);
+if(!isTest){
+    app.use("/api/auth",authLimiter);
+    app.use("/api", generalLimiter);
+}
 
 app.use("/api/monitors",authMiddleware, monitorRouter);
 app.use("/api/auth", authRouter);

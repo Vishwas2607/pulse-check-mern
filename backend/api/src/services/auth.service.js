@@ -29,7 +29,7 @@ export const loginUser = async (data) => {
         throw new AppError(400,"All fields are required")
     }
 
-    const user = await findByEmail(email);
+    const user = await findByEmail(email.toLowerCase());
 
     if(!user) throw new AppError(401,"Invalid email or password");
 

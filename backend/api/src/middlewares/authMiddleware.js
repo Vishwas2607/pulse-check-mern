@@ -19,6 +19,9 @@ const authMiddleware = async(req,res,next) => {
     };
 
     const user = jwt.verify(token,jwtSecret);
+    if (!user?.sub) {
+        return next(new Error("Invalid token"));
+    }
     req.user = user.sub;
     next();
 }
