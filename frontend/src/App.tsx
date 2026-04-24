@@ -16,6 +16,8 @@ import Sidebar from './components/Sidebar'
 import {AnimatePresence,motion} from "framer-motion"
 import {Squash as Hamburger} from "hamburger-react"
 import Heartbeats from './pages/HeartbeatsPage'
+import {Toaster} from "sonner"
+import PageNotFound from './pages/404Page'
 
 function App() {
 
@@ -58,16 +60,25 @@ function App() {
       
       <Route element={<ProtectedRoute/>}>
         <Route path='/monitors' element={<Monitors/>}/>
-        <Route path="/monitors/add-monitor" element={<CreateMonitor/>}/>
+        <Route path="/add-monitor" element={<CreateMonitor/>}/>
         <Route path="/monitors/:id" element={<MonitorDetails/>}/>
         <Route path="/monitors/:id/edit-monitor" element={<CreateMonitor/>}/>
         <Route path="/monitors/:id/analytics" element={<MonitorAnalytics/>}/>
         <Route path="/monitors/:id/heartbeats" element={<Heartbeats/>}/>
         <Route path="/monitors/:id/incidents" element={<Incidents/>} />
       </Route>
-
+      
+      <Route path='*' element={<PageNotFound/>} />
     </Routes>
     </main>
+    <Toaster toastOptions={{
+                classNames: {
+                toast: "!text-gray-100 !border-none",
+                description: "!text-gray-200",
+                error: "!bg-red-400 !text-gray-100",
+                success: "!bg-indigo-500 !text-gray-100",
+                warning: "!bg-gray-800 !text-gray-100",
+            }}}/>
 
     <footer className="flex-between bg-gray-950 border-t mt-5 mb-2 border-gray-700 w-full px-2 py-1">
       <div className='text-body flex flex-col flex-center w-full md:gap-6 md:flex-row flex-wrap'>
