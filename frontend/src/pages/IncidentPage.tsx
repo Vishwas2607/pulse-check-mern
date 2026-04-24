@@ -5,31 +5,38 @@ import { IncidentCard } from "@/features/monitors/components/IncidentCard";
 import {useInView} from "react-intersection-observer"
 import { useEffect } from "react";
 import { Loadable,Skeleton } from "@/components/Skeleton";
+import { ShieldCheck } from "lucide-react";
+import { RefreshTimer } from "@/components/RefreshTimer";
+import { checkErrorMsg } from "@/utils/helpers";
+
 export default function Incidents () {
   const { id } = useParams();
   const { ref, inView } = useInView(); 
   const navigate = useNavigate();
 
-  if(!id) return <p>Id is invalid</p>; 
+  const {data,hasNextPage,fetchNextPage, isLoading, isFetchingNextPage,error} = useIncidents(id||"");
 
-  const {data,hasNextPage,fetchNextPage, isLoading, isFetchingNextPage,error} = useIncidents(id);
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
         }
     }, [inView, hasNextPage, isFetchingNextPage]);
 
-  if(error) return <p className="text-center text-error">{error.message}</p>
+  if(error) return <p className="text-center text-error">{checkErrorMsg(error)}</p>
 
   const incidents = (data?.pages.flatMap((page) => page.incidents)as GetIncidentstype[]) ?? [];
   
   return (
     <section className="container-app section gap-10 px-10">
-        <h2 className="text-title text-center">Incident History</h2>
+        <h1 className="text-title text-center">Incident History</h1>
 
-    <Loadable loading={isLoading} skeleton={<Skeleton className="h-22 w-full rounded-lg" childClass="top-5 right-5 w-10 h-10"/>}>
+    <Loadable loading={isLoading} skeleton={<Skeleton className="h-37 md:22 w-full rounded-lg" childClass="top-12 md:top-5 right-5 w-10 h-10"/>}>
     <div className="flex-center flex-col">
-      {incidents && incidents.length === 0 && <p>No incidents to show</p>}
+      {incidents && incidents.length === 0 && (
+        <div className="flex-center w-full gap-main flex-col text-heading text-green-600">
+          <ShieldCheck color="green" size={60} strokeWidth={1.5}/>
+          <p>Monitor operational</p>
+        </div>)}
 
         <ul className="w-full flex flex-col gap-10">
           {incidents.map((i:GetIncidentstype)=> (
@@ -46,12 +53,14 @@ export default function Incidents () {
       </div>
       </Loadable>
 
-      <Loadable loading={isLoading} skeleton={<Skeleton className="h-22 w-full rounded-lg" childClass="top-5 right-5 w-10 h-10"/>}><div className="hidden"></div></Loadable>
-      <Loadable loading={isLoading} skeleton={<Skeleton className="h-22 w-full rounded-lg" childClass="top-5 right-5 w-10 h-10"/>}><div className="hidden"></div></Loadable>
+      <Loadable loading={isLoading} skeleton={<Skeleton className="h-37 md:h-22 w-full rounded-lg" childClass="top-12 md:top-5 right-5 w-10 h-10"/>}><div className="hidden"></div></Loadable>
+      <Loadable loading={isLoading} skeleton={<Skeleton className="h-37 md:h-22 w-full rounded-lg" childClass="top-12 md:top-5 right-5 w-10 h-10"/>}><div className="hidden"></div></Loadable>
+      {<RefreshTimer queryKey={["incidents", id]}/>}
         <div className="flex-center gap-main mt-5">
           <button className="btn-secondary" onClick={()=>navigate(-1)}>Go back</button>
           <Link className="btn-primary" to={`/monitors/${id}/heartbeats`}>View Heartbeats</Link>
         </div>
+
     </section>
   )
 }

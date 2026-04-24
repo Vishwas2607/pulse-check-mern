@@ -2,6 +2,7 @@ import type { GetLastHeartbeatType } from "../types";
 import { Dot } from "lucide-react";
 import React from "react";
 import clsx from "clsx";
+import dayjs from "dayjs";
 
 export const HeartbeatCard = React.memo(({status, checkedAt,responseTime,statusCode,error}:GetLastHeartbeatType)=> {
 
@@ -9,9 +10,9 @@ export const HeartbeatCard = React.memo(({status, checkedAt,responseTime,statusC
     return (
         <div className="w-full">
               <div className="flex-between">
-                <div className="card-content flex gap-6">
+                <div className="card-content flex gap-6 flex-col md:flex-row">
                   <span className="card-title capitalize">Status: {status}</span>
-                  <span>StartedAt: {new Date(checkedAt).toLocaleDateString()}</span>
+                  <span>Checked At: {dayjs(checkedAt).format("MMM DD, YYYY HH:mm")}</span>
                   {responseTime && <span>Response Time: {responseTime.toFixed(2)}ms</span>}
                   {statusCode && <span>Status Code: {statusCode}</span>}
                 </div>
