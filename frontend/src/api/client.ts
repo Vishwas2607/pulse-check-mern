@@ -5,11 +5,4 @@ const apiClient = axios.create({
     withCredentials: true,
 });
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
 export default apiClient;

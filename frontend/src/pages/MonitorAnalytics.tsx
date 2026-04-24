@@ -1,4 +1,4 @@
-import { useParams,Link } from "react-router"
+import { useParams,Link} from "react-router"
 import { useSummary } from "../features/monitors/hooks/useSummary"
 import {UptimePieChart} from "../features/monitors/components/UptimePieChart";
 import { type RangeType, type FailureSeries, type ResponseSeries, type SeriesType, type SummaryType, type UptimeSeries } from "../features/monitors/types";
@@ -7,11 +7,14 @@ import {FailureCountChart} from "@/features/monitors/components/FailureCountChar
 import {ResponseTimeChart} from "@/features/monitors/components/ResponseTimeChart";
 import React, { useState } from "react";
 import { Loadable, Skeleton } from "@/components/Skeleton";
+import { RefreshTimer } from "@/components/RefreshTimer";
+import { checkErrorMsg } from "@/utils/helpers";
 
 export default function MonitorAnalytics() {
     
     const {id} = useParams();
-    const [range,setRange] = useState<RangeType>("24h")
+    const [range,setRange] = useState<RangeType>("24h");
+
     const { summary, isLoading, isFetching, error, series }: { summary: SummaryType; isLoading: boolean; isFetching: boolean; error: Error | null, series: SeriesType[]; } = useSummary(id||"",range);
 
     const { upTimeSeries, responseSeries, failureSeries } = React.useMemo(() => {
@@ -28,8 +31,7 @@ export default function MonitorAnalytics() {
         return { upTimeSeries: uptime, responseSeries: response, failureSeries: failure };
     }, [series]);
 
-    if(!id) return <p>Invalid Id</p>
-    if(error) return <p className="text-center text-error">{error.message}</p>
+    if(error) return <p className="text-center text-error">{checkErrorMsg(error)}</p>
     return (
         <section className="container-main flex flex-col gap-10 mx-auto">
             <h2 className="text-title text-center">Analytics</h2>
@@ -72,13 +74,13 @@ export default function MonitorAnalytics() {
                 </Loadable>
             </div>
 
-            {summary && summary.avgResponseTime !==0 && <p className="text-center">No data found for this period. Try adjusting your date range.</p>}
+            {<RefreshTimer queryKey={["summary", id,range]}/>}
+            {summary && summary.avgResponseTime ===0 && <p className="text-center">No data found for this period. Try adjusting your date range.</p>}
 
             <div className="flex-center gap-main">
                 <Link to={`/monitors/${id}/heartbeats`} className="btn-primary">View Heartbeats</Link>
                 <Link to={`/monitors/${id}/incidents`}className="btn-primary">View Incidents</Link>
             </div>
-            {isFetching && <p className="w-full mt-6">Refreshing...</p>}
         </section>
     )
 }

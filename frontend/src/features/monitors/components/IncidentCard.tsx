@@ -3,6 +3,7 @@ import { Dot } from "lucide-react";
 import React from "react";
 import clsx from "clsx";
 import { STATUS_STYLES } from "../../../utils/constants";
+import dayjs from "dayjs";
 
 export const IncidentCard = React.memo(({status,startedAt,resolvedAt,currentStatus,durationInSeconds,isActive}:GetIncidentstype)=> {
 
@@ -12,10 +13,10 @@ export const IncidentCard = React.memo(({status,startedAt,resolvedAt,currentStat
     return (
         <div className="w-full">
               <div className="flex-between">
-                <div className="card-content flex gap-6">
+                <div className="card-content flex gap-6 flex-col md:flex-row">
                   <span className="card-title capitalize">Status: {status}</span>
-                  {startedAt && <span>StartedAt: {new Date(startedAt).toLocaleDateString()}</span>}
-                  {resolvedAt && <span>ResolvedAt: {new Date(resolvedAt).toLocaleDateString()}</span>}
+                  {startedAt && <span>StartedAt: {dayjs(startedAt).format("MMM DD, YYYY HH:mm")}</span>}
+                  {resolvedAt && <span>ResolvedAt: {dayjs(resolvedAt).format("MMM DD, YYYY HH:mm")}</span>}
                 </div>
                 <div className={clsx("flex-center", statusStyle, (isActive && "animate-pulse"))}>
                   <Dot size={16}/>

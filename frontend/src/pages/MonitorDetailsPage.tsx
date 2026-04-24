@@ -3,34 +3,21 @@ import type { UIType} from "../features/monitors/types";
 import { IncidentCard } from "../features/monitors/components/IncidentCard";
 import { useMonitorStatus } from "../features/monitors/hooks/useMonitor";
 import { Dot } from "lucide-react";
-import React from "react";
 import { useLastHeartbeat } from "../features/monitors/hooks/useHeartbeats";
 import clsx from "clsx"
-import { normalizeStatus, getMonitorUiState, monitorBgStyle, monitorStatusStyle } from "../utils/helpers";
+import { normalizeStatus, getMonitorUiState, monitorBgStyle, monitorStatusStyle, checkErrorMsg } from "../utils/helpers";
 import { Link } from "react-router";
 import { Loadable, Skeleton } from "@/components/Skeleton";
+import dayjs from "dayjs";
+import { RefreshTimer } from "@/components/RefreshTimer";
 
 const MonitorDetails = () => {
-  const { id } = useParams();
+  let { id } = useParams();
   const navigate = useNavigate();
+  if(!id) id= "";
 
-  if(!id) return <p>Id is invalid</p>; // Will redirect to 404 page
-
-  const [, forceUpdate] = React.useState(0);
-  
-      React.useEffect(() => {
-      const time = setInterval(() => {
-          forceUpdate((x) => x + 1);
-      }, 60000);
-  
-      return () => clearInterval(time);
-      }, []);
-
-  
-  const {monitor, status,isLoading,error,isFetching, lastIncident} = useMonitorStatus(id);
+  const {monitor, status,isLoading,error, lastIncident} = useMonitorStatus(id);
   const {lastHeartbeat,isLoading:isLoadingHeartbeat} = useLastHeartbeat(id);
-
-  if(!isLoading && !monitor) return <p className="text-center text-error">No Monitor found</p>
   
   const durationInMin = status?.isDown ?  Math.floor(status.durationInSeconds/60): 0;
   const duration = status?.isDown ? `Down for ${durationInMin} mins` : null;
@@ -44,7 +31,7 @@ const MonitorDetails = () => {
   const bgStyle = monitorBgStyle(ui.state);
   const statusStyle = monitorStatusStyle(ui.state);
 
-  if(error) return <p className="text-title text-center">{error.message}</p>
+  if(error) return <p className="text-center text-error">{checkErrorMsg(error)}</p>
 
   return (
     <section className="container-main mx-auto">
@@ -79,7 +66,7 @@ const MonitorDetails = () => {
 
               <div key={lastHeartbeat._id} className="flex flex-col w-full text-body gap-4">
                 <span className={clsx(heartbeatStatusStyle)}>Status: {lastHeartbeat.status.toUpperCase()}</span>
-                <span>CheckedAt: {new Date(lastHeartbeat.checkedAt).toLocaleDateString()}</span>
+                <span>CheckedAt: {dayjs(lastHeartbeat.checkedAt).format("MMM DD, YYYY HH:mm")}</span>
 
                 {lastHeartbeat.responseTime && <span>Response Time: {lastHeartbeat.responseTime.toFixed(2)}ms</span>}
                 {lastHeartbeat.statusCode && <span>StatusCode: {lastHeartbeat.statusCode}</span>}
@@ -93,18 +80,18 @@ const MonitorDetails = () => {
 
       
       <div className="container-main w-full mx-auto">
-      <Loadable loading={isLoading} skeleton={<Skeleton childClass="hidden" className="h-35 rounded-xl w-full max-w-7xl"/>}>
+      <Loadable loading={isLoading} skeleton={<Skeleton childClass="hidden" className="h-55 md:35 rounded-xl w-full max-w-7xl"/>}>
       <div className="card flex-center flex-col">
         <h2 className="text-heading mb-6">Recent Incident</h2>
         {!lastIncident && <p>No Incidents to show</p>}
         {lastIncident && <IncidentCard _id={lastIncident._id} status={lastIncident.status} startedAt={lastIncident.startedAt} resolvedAt={lastIncident.resolvedAt} currentStatus={lastIncident.currentStatus} durationInSeconds={lastIncident.durationInSeconds} isActive={lastIncident.isActive} />}
       </div>
       </Loadable>
-      {isFetching && <p className="w-full mt-6">Refreshing...</p>}
-      </div>
       
+      </div>
+      {<RefreshTimer queryKey={["monitor", id]}/>}
 
-      <div className="flex-center gap-main ">
+      <div className="flex-center gap-main mt-5">
           <button  className="btn-secondary w-fit" onClick={()=> navigate(-1)}>Go Back</button>
           <Link to={`/monitors/${id}/analytics`} className="btn-primary w-fit">View Analytics</Link>
       </div>

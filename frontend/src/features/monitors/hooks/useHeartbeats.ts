@@ -19,6 +19,8 @@ export const useHeartbeats = (id:string) => {
         initialPageParam: "",
         getNextPageParam: (lastPage) => {
             return lastPage.hasNextPage ? lastPage.nextCursor : undefined
-        }
+        },
+        refetchInterval:10000,
+        staleTime:5000
     });
 };

@@ -9,5 +9,7 @@ export const useIncidents = (id:string) => {
         getNextPageParam: (lastPage) => {
             return lastPage.hasNextPage ? lastPage.nextCursor : undefined
         },
+        refetchInterval:3*60*1000,
+        staleTime:60000
     });
 };
