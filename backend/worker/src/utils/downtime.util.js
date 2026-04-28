@@ -1,25 +1,31 @@
 import { floorToHour } from "./helpers.js";
 
-export const calculateDowntimeBuckets = (start,end,monitorId) => {
-    let current = start;
+export const calculateDowntimeBuckets = (start, end, monitorId) => {
+
+    let currentTs = start instanceof Date ? start.getTime() : start;
+    const endTs = end instanceof Date ? end.getTime() : end;
+    
     const ops = [];
 
-    while (current < end) {
-        const bucketStart = floorToHour(current);
-        const bucketEnd = new Date(bucketStart.getTime() + 60*60*1000);
+    while (currentTs < endTs) {
+        const bucketStart = floorToHour(currentTs);
+        const bucketEndTs = bucketStart.getTime() + 60 * 60 * 1000;
+        console.log({bucketStart})
+        const overlapEndTs = Math.min(bucketEndTs, endTs);
 
-        const overlapEnd = new Date(Math.min(bucketEnd,end));
-        const duration = (overlapEnd - current)/1000;
+        const duration = (overlapEndTs - currentTs) / 1000;
 
-        ops.push({
-            updateOne: {
-                filter: {monitorId,bucketStart},
-                update: {$inc: {downtime: duration}},
-                upsert: true
-            }
-        });
+        if (duration > 0) {
+            ops.push({
+                updateOne: {
+                    filter: { monitorId, bucketStart },
+                    update: { $inc: { downtime: duration } },
+                    upsert: true
+                }
+            });
+        }
 
-        current = overlapEnd;
+        currentTs = overlapEndTs;
     }
     return ops;
-}
+};
