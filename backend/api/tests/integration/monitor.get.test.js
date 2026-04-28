@@ -1,20 +1,26 @@
+import {vi,beforeAll,beforeEach,afterAll, describe,it,expect} from "vitest";
+
+vi.mock("../../src/queues/monitor.queue.js",()=> ({
+    monitorQueue: {add: vi.fn()}
+}))
+
 import request from "supertest";
 import app from "../../../app.js";
 import Monitor from "../../src/models/monitors.model.js";
-import {vi,beforeAll,beforeEach,afterAll, describe,it,expect} from "vitest";
 import { connectTestDB, clearTestDB,closeTestDB } from "../setup.js";
 
 describe("POST /api/monitors (Integration)", ()=> {
     beforeAll(connectTestDB);
     afterAll(closeTestDB);
-    beforeEach(clearTestDB);
-
-    const registerUserData = (overrides={}) => ({
-      email: "test@example.com",
-      username: "testuser",
-      password: "StrongPass123!",
-      ...overrides
-    })
+    beforeEach(async()=> {
+        await clearTestDB();
+        await request(app)
+            .post("/api/auth/register")
+            .send({
+                    email: "test@example.com",
+                    username: "testuser",
+                    password: "StrongPass123!",})
+    });
 
     const loginUserData = (overrides={}) => ({
       email: "test@example.com",
@@ -25,9 +31,6 @@ describe("POST /api/monitors (Integration)", ()=> {
     const createMonitorData = (overrides={}) => ({url: "https://google.com", interval: "60", ...overrides});
 
     it("should successfully fetch monitors when user is valid", async()=> {
-        await request(app)
-            .post("/api/auth/register")
-            .send(registerUserData())
         
         const loginResponse = await request(app)
                                 .post("/api/auth/login")
@@ -55,9 +58,6 @@ describe("POST /api/monitors (Integration)", ()=> {
     });
 
     it("should return 401 when no accessToken is there", async()=> {
-        await request(app)
-            .post("/api/auth/register")
-            .send(registerUserData())
         
         const loginResponse = await request(app)
                                 .post("/api/auth/login")
@@ -84,9 +84,6 @@ describe("POST /api/monitors (Integration)", ()=> {
     });
 
     it("should return empty array when no monitor found", async()=> {
-        await request(app)
-            .post("/api/auth/register")
-            .send(registerUserData())
         
         const loginResponse = await request(app)
                                 .post("/api/auth/login")

@@ -1,20 +1,28 @@
+import {vi,beforeAll,beforeEach,afterAll, describe,it,expect} from "vitest";
+
+vi.mock("../../src/queues/monitor.queue.js",()=> ({
+    monitorQueue: {add: vi.fn()}
+}))
+
 import request from "supertest";
 import app from "../../../app.js";
 import Monitor from "../../src/models/monitors.model.js";
-import {vi,beforeAll,beforeEach,afterAll, describe,it,expect} from "vitest";
 import { connectTestDB, clearTestDB,closeTestDB } from "../setup.js";
+
 
 describe("POST /api/monitors (Integration)", ()=> {
     beforeAll(connectTestDB);
-    afterAll(closeTestDB);
-    beforeEach(clearTestDB);
 
-    const registerUserData = (overrides={}) => ({
-      email: "test@example.com",
-      username: "testuser",
-      password: "StrongPass123!",
-      ...overrides
-    })
+    afterAll(closeTestDB);
+    beforeEach(async()=> {
+        await clearTestDB();
+        await request(app)
+            .post("/api/auth/register")
+            .send({
+                    email: "test@example.com",
+                    username: "testuser",
+                    password: "StrongPass123!",})
+    });
 
     const loginUserData = (overrides={}) => ({
       email: "test@example.com",
@@ -25,10 +33,6 @@ describe("POST /api/monitors (Integration)", ()=> {
     const createMonitorData = (overrides={}) => ({url: "https://google.com", interval: "60", ...overrides});
     
     it("should create a new monitor successfully", async()=> {
-        await request(app)
-            .post("/api/auth/register")
-            .send(registerUserData())
-        
         const loginResponse = await request(app)
                                 .post("/api/auth/login")
                                 .send(loginUserData());
@@ -49,14 +53,11 @@ describe("POST /api/monitors (Integration)", ()=> {
 
         expect(response.body.message).toBeDefined()
 
-        const newMonitor = await Monitor.find();
+        const newMonitor = await Monitor.find()
         expect(newMonitor.length).toEqual(1);
     })
 
     it("should return 400 when url is invalid", async()=> {
-        await request(app)
-            .post("/api/auth/register")
-            .send(registerUserData())
         
         const loginResponse = await request(app)
                                 .post("/api/auth/login")
@@ -83,9 +84,6 @@ describe("POST /api/monitors (Integration)", ()=> {
     })
 
     it("should return 401 when access token is malformed", async()=> {
-        await request(app)
-            .post("/api/auth/register")
-            .send(registerUserData())
         
         const loginResponse = await request(app)
                                 .post("/api/auth/login")
