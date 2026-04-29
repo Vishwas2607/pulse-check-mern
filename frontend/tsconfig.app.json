@@ -9,6 +9,7 @@
 
     "allowJs": true,
     "checkJs": true,
+    "esModuleInterop": true,
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -30,5 +31,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "declarations.d.ts"]
 }

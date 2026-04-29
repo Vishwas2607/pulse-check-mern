@@ -1,4 +1,4 @@
-import {createMonitorSchema} from "../../../../lib/schemas/monitor.validator";
+import {createMonitorSchema} from "lib/schemas/monitor.validator.js";
 import {z} from "zod";
 
 export type StatusType = "UP" | "DOWN" | "UNKNOWN";

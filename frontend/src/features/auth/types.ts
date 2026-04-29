@@ -1,10 +1,10 @@
 import {z} from "zod";
-import {loginSchema, registerSchema} from "../../../../lib/schemas/auth.validator"
+import {loginSchema, registerSchema} from "lib/schemas/auth.validator.js"
 
 export const registerSchemaExtended = registerSchema.extend({
     confirmPassword: z.string().min(1, "Please confirm your password"),
 })
-.refine((data)=> data.password === data.confirmPassword, {
+.refine((data :z.infer<typeof registerSchema> & {confirmPassword: string})=> data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
 });
