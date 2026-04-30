@@ -9,7 +9,7 @@ import { RefreshTimer } from "@/components/RefreshTimer";
 import { checkErrorMsg } from "@/utils/helpers";
 
 export default function Monitors () {
-    const {monitors, isLoading,error,isFetching} = useMonitors();
+    const {monitors, isLoading,error} = useMonitors();
 
     return (
             <section className="section mt-5 flex-center">

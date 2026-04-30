@@ -7,7 +7,6 @@ import { Link, useNavigate } from "react-router";
 import { postLogin } from "@/features/auth/api";
 import { useAuthentication } from "@/features/auth/context/AuthenticationContext";
 import { toast } from "sonner";
-import axios, { AxiosError } from "axios";
 import { checkErrorMsg } from "@/utils/helpers";
 
 export default function Login() {
@@ -49,13 +48,13 @@ export default function Login() {
                                 <label htmlFor="email" className="input-label">Email: </label>
                                 <input id="email" placeholder="Enter email" className="input" {...register("email")}/>
                             </div>
-                            {errors.email && <p role="alert" aria-live="polite" className="text-error">{errors.email.message}</p>}
+                            {errors.email?.message && <p role="alert" aria-live="polite" className="text-error">{String(errors.email.message)}</p>}
 
                             <div className="input-wrapper">
                             <label htmlFor="password" className="input-label">Password: </label>
                             <input type={showPassword ? "text" : "password"} id="password" placeholder="Enter password" className="input" {...register("password")}/>
                             </div>
-                            {errors.password && <p role="alert" aria-live="polite" className="text-error">{errors.password.message}</p>}
+                            {errors.password?.message && <p role="alert" aria-live="polite" className="text-error">{String(errors.password.message)}</p>}
 
                             <div>
                                 <label htmlFor="show-password" className="flex gap-5 items-center cursor-pointer input-label">

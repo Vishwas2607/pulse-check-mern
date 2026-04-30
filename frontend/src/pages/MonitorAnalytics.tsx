@@ -15,7 +15,7 @@ export default function MonitorAnalytics() {
     const {id} = useParams();
     const [range,setRange] = useState<RangeType>("24h");
 
-    const { summary, isLoading, isFetching, error, series }: { summary: SummaryType; isLoading: boolean; isFetching: boolean; error: Error | null, series: SeriesType[]; } = useSummary(id||"",range);
+    const { summary, isLoading, error, series }: { summary: SummaryType; isLoading: boolean; isFetching: boolean; error: Error | null, series: SeriesType[]; } = useSummary(id||"",range);
 
     const { upTimeSeries, responseSeries, failureSeries } = React.useMemo(() => {
         const uptime: UptimeSeries[] = [];

@@ -47,25 +47,25 @@ export default function Register() {
                         <label htmlFor="username" className="input-label">Username: </label>
                         <input id="username" autoComplete="username" placeholder="Enter username" className="input" {...register("username")}/>
                     </div>
-                    {errors.username && <p role="alert" aria-live="polite" className="text-error">{errors.username.message}</p>}
+                    {errors.username && <p role="alert" aria-live="polite" className="text-error">{String(errors.username.message)}</p>}
 
                     <div className="input-wrapper">
                         <label htmlFor="email" className="input-label">Email: </label>
                         <input id="email" autoComplete="email" placeholder="Enter email" className="input" {...register("email")}/>
                     </div>
-                    {errors.email && <p role="alert" aria-live="polite" className="text-error">{errors.email.message}</p>}
+                    {errors.email && <p role="alert" aria-live="polite" className="text-error">{String(errors.email.message)}</p>}
 
                     <div className="input-wrapper">
                     <label htmlFor="password" className="input-label">Password: </label>
                     <input type={showPassword ? "text" : "password"} autoComplete="new-password" id="password" placeholder="Enter password" className="input" {...register("password")}/>
                     </div>
-                    {errors.password && <p role="alert" aria-live="polite" className="text-error">{errors.password.message}</p>}
+                    {errors.password?.message && <p role="alert" aria-live="polite" className="text-error">{String(errors.password.message)}</p>}
 
                     <div className="input-wrapper">
                     <label htmlFor="cnf-password" className="input-label">Confirm Password: </label>
                     <input type={showPassword ? "text" : "password"} id="cnf-password" placeholder="Confirm password" className="input" {...register("confirmPassword")}/>
                     </div>
-                    {errors.confirmPassword && <p role="alert" aria-live="polite" className="text-error">{errors.confirmPassword.message}</p>}
+                    {errors.confirmPassword && <p role="alert" aria-live="polite" className="text-error">{String(errors.confirmPassword.message)}</p>}
 
                     <div className="flex gap-5 items-center">
                         <label htmlFor="show-password" className="flex gap-5 items-center cursor-pointer input-label">
