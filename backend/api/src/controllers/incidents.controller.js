@@ -1,4 +1,4 @@
-import { Incident } from "../models/incidents.model.js";
+import { Incident } from "../../../shared/models/incidents.model.js";
 import { getIncidents } from "../services/incidents.service.js";
 
 export const getIncidentController = async(req,res) => {

@@ -6,7 +6,7 @@ vi.mock("../../src/queues/monitor.queue.js",()=> ({
 
 import request from "supertest";
 import app from "../../../app.js";
-import Monitor from "../../src/models/monitors.model.js";
+import Monitor from "../../../shared/models/monitors.model.js";
 import { connectTestDB, clearTestDB,closeTestDB } from "../setup.js";
 
 describe("POST /api/monitors (Integration)", ()=> {

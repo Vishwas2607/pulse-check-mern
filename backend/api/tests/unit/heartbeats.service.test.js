@@ -1,11 +1,11 @@
 import {describe,it,expect,vi,beforeEach} from "vitest";
 
-vi.mock("../../src/repositories/heartbeats.repository.js", () => ({
+vi.mock("../../../shared/repositories/heartbeats.repository.js", () => ({
     getHeartbeatCursorBased: vi.fn(),
 }));
 
 import { getHeartbeats } from "../../src/services/heartbeats.service.js";
-import * as heartbeats from "../../src/repositories/heartbeats.repository.js";
+import * as heartbeats from "../../../shared/repositories/heartbeats.repository.js";
 
 
 describe("Heartbeats Service - getHeartbeats", ()=> {

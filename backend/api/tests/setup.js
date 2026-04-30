@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import {MongoMemoryServer} from "mongodb-memory-server";
-import ConnectDB, {DisconnectDB} from "../../api/src/config/db.connection.js";
+import ConnectDB, {DisconnectDB} from "../../shared/config/db.connection.js";
 import mongoose from 'mongoose';
 
 let mongoServer;

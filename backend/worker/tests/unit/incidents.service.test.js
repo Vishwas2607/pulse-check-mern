@@ -1,12 +1,12 @@
 import {describe,it,expect,vi,beforeEach} from "vitest"; 
 
-vi.mock("../../../api/src/repositories/incidents.repository.js", ()=> ({
+vi.mock("../../../shared/repositories/incidents.repository.js", ()=> ({
     createIncident: vi.fn(),
     updateIncident: vi.fn()
 }));
 
 
-vi.mock("../../../api/src/repositories/hourlyAggregate.repository.js", ()=> ({
+vi.mock("../../../shared/repositories/hourlyAggregate.repository.js", ()=> ({
     incrementFailureCount: vi.fn(),
     updateBulkBucketDownTime: vi.fn()
 }))
@@ -22,10 +22,10 @@ vi.mock("../../src/utils/helpers.js", ()=> ({
 
 
 import { handleIncidentCreation, handleIncidentResolution } from "../../src/services/incidents.service.js";
-import * as incidents from "../../../api/src/repositories/incidents.repository.js"
+import * as incidents from "../../../shared/repositories/incidents.repository.js"
 import { calculateDowntimeBuckets } from "../../src/utils/downtime.util.js";
 import { areLast3Down, floorToHour } from "../../src/utils/helpers.js";
-import * as aggregates from "../../../api/src/repositories/hourlyAggregate.repository.js"
+import * as aggregates from "../../../shared/repositories/hourlyAggregate.repository.js"
 
 describe("Incidents Service - Handle Incident Creation", ()=> {
     beforeEach(()=> {

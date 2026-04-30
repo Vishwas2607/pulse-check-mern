@@ -1,6 +1,6 @@
 import {describe,it,expect,vi,beforeEach} from "vitest"; 
 
-vi.mock("../../../api/src/repositories/hourlyAggregate.repository.js", ()=> ({
+vi.mock("../../../shared/repositories/hourlyAggregate.repository.js", ()=> ({
     upsertHourlyAggregation: vi.fn()
 }))
 
@@ -9,7 +9,7 @@ vi.mock("../../src/utils/helpers.js", ()=> ({
 }))
 
 import { updateAggregation } from "../../src/services/aggregation.service.js";
-import { upsertHourlyAggregation } from "../../../api/src/repositories/hourlyAggregate.repository.js";
+import { upsertHourlyAggregation } from "../../../shared/repositories/hourlyAggregate.repository.js";
 import { floorToHour } from "../../src/utils/helpers.js";
 
 describe("Aggregation Service - Update Aggregation", ()=> {

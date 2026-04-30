@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import ConnectDB from "../../api/src/config/db.connection.js";
+import ConnectDB from "../../shared/config/db.connection.js";
 import path from "path";
 import logger from "./utils/logger.js";
 import { startWorker } from "./worker.connection.js";

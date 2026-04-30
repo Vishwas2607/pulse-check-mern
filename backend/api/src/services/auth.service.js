@@ -1,4 +1,4 @@
-import { createUser, findByEmail, findById } from "../repositories/user.repository.js";
+import { createUser, findByEmail, findById } from "../../../shared/repositories/user.repository.js";
 import AppError from "../utils/appError.js";
 import bcrypt from "bcrypt";
 import { generateAccessToken } from "../utils/helpers.js";

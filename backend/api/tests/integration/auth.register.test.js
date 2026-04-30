@@ -1,6 +1,6 @@
 import request from "supertest";
 import app from "../../../app.js";
-import User from "../../src/models/user.model.js";
+import User from "../../../shared/models/user.model.js";
 import {vi,beforeAll,beforeEach,afterAll, describe,it,expect} from "vitest";
 import { connectTestDB, clearTestDB,closeTestDB } from "../setup.js";
 

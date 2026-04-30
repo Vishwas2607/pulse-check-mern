@@ -1,4 +1,4 @@
-import { createHeartbeat } from "../../../api/src/repositories/heartbeats.repository.js";
+import { createHeartbeat } from "../../../shared/repositories/heartbeats.repository.js";
 import { RetriableError } from "../utils/retriableError.js";
 import logger from "../utils/logger.js";
 

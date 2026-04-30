@@ -1,6 +1,6 @@
 import {describe,it,expect,vi,beforeEach} from "vitest";
 
-vi.mock("../../src/repositories/monitors.repository.js", () => ({
+vi.mock("../../../shared/repositories/monitors.repository.js", () => ({
     createMonitor: vi.fn(),
 }));
 
@@ -9,8 +9,8 @@ vi.mock("../../src/queues/monitor.queue.js",()=> ({
 }))
 
 import { createNewMonitor } from "../../src/services/monitors.service.js";
-import * as monitorRepo from "../../../api/src/repositories/monitors.repository.js";
 import { monitorQueue } from "../../src/queues/monitor.queue.js";
+import * as monitorRepo from "../../../shared/repositories/monitors.repository.js";
 
 describe("Monitor Service - Create", ()=> {
     beforeEach(()=> {

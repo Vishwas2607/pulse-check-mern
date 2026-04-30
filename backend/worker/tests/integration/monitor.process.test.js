@@ -1,10 +1,10 @@
 import {vi,beforeAll,beforeEach,afterAll, describe,it,expect, afterEach} from "vitest";
 import { connectTestDB, clearTestDB,closeTestDB } from "../setup.js";
 import monitorProcessor from "../../src/monitor.process.js";
-import { Heartbeat } from "../../../api/src/models/heartbeats.model.js";
-import { HourlyAggregate } from "../../../api/src/models/hourlyAggregate.model.js";
-import { Incident } from "../../../api/src/models/incidents.model.js";
-import Monitor from "../../../api/src/models/monitors.model.js";
+import { Heartbeat } from "../../../shared/models/heartbeats.model.js";
+import { HourlyAggregate } from "../../../shared/models/hourlyAggregate.model.js";
+import { Incident } from "../../../shared/models/incidents.model.js";
+import Monitor from "../../../shared/models/monitors.model.js";
 import mongoose from "mongoose";
 import { mswServer } from "../mocks/server.js";
 import {http, HttpResponse } from "msw";

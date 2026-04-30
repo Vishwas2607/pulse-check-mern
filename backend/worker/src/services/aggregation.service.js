@@ -1,4 +1,4 @@
-import { upsertHourlyAggregation } from "../../../api/src/repositories/hourlyAggregate.repository.js";
+import { upsertHourlyAggregation } from "../../../shared/repositories/hourlyAggregate.repository.js";
 import { floorToHour } from "../utils/helpers.js";
 import logger from "../utils/logger.js";
 

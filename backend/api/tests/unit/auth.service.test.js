@@ -1,6 +1,6 @@
 import {describe,it,expect,vi,beforeEach} from "vitest";
 
-vi.mock("../../src/repositories/user.repository.js", () => ({
+vi.mock("../../../shared/repositories/user.repository.js", () => ({
     createUser: vi.fn(),
     findByEmail: vi.fn(),
     findById: vi.fn()
@@ -18,7 +18,7 @@ vi.mock("bcrypt", () => ({
 }));
 
 import { registerUser, loginUser } from "../../src/services/auth.service.js";
-import * as userRepo from "../../src/repositories/user.repository.js";
+import * as userRepo from "../../../shared/repositories/user.repository.js";
 import bcrypt from "bcrypt";
 import { generateAccessToken } from "../../src/utils/helpers.js";
 

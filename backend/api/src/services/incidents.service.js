@@ -1,4 +1,4 @@
-import { getIncidentCursorBased} from "../repositories/incidents.repository.js";
+import { getIncidentCursorBased} from "../../../shared/repositories/incidents.repository.js";
 import AppError from "../utils/appError.js";
 
 export const getIncidents = async(monitorId,data) => {

@@ -1,9 +1,9 @@
 import logger from "./utils/logger.js";
 import { processHeartbeat, saveHeartbeat } from "./services/heartbeat.service.js";
 import { updateAggregation } from "./services/aggregation.service.js";
-import { getHeartbeatsFromDB } from "../../api/src/repositories/heartbeats.repository.js";
+import { getHeartbeatsFromDB } from "../../shared/repositories/heartbeats.repository.js";
 import { handleIncidentCreation, handleIncidentResolution } from "./services/incidents.service.js";
-import { getMonitorByMonitorId } from "../../api/src/repositories/monitors.repository.js";
+import { getMonitorByMonitorId } from "../../shared/repositories/monitors.repository.js";
 
 const monitorProcessor = async(job) => {
     const {url,monitorId} = job.data;

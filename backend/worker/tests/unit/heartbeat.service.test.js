@@ -1,12 +1,12 @@
 import {describe,it,expect,vi,beforeEach} from "vitest"; 
 
-vi.mock("../../../api/src/repositories/heartbeats.repository.js", ()=> ({
+vi.mock("../../../shared/repositories/heartbeats.repository.js", ()=> ({
     createHeartbeat: vi.fn()
 }));
 
 
 import { processHeartbeat, saveHeartbeat } from "../../src/services/heartbeat.service.js";
-import * as heartbeats from "../../../api/src/repositories/heartbeats.repository.js"
+import * as heartbeats from "../../../shared/repositories/heartbeats.repository.js"
 
 describe("Heartbeat Service - Save Heartbeat", ()=> {
     beforeEach(()=> {

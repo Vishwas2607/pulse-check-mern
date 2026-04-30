@@ -1,4 +1,4 @@
-import { getLastHeartbeatFromDB, getHeartbeatCursorBased } from "../repositories/heartbeats.repository.js";
+import { getLastHeartbeatFromDB, getHeartbeatCursorBased } from "../../../shared/repositories/heartbeats.repository.js";
 import AppError from "../utils/appError.js";
 
 

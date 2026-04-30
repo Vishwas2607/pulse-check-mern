@@ -1,8 +1,8 @@
 import { monitorQueue } from "../queues/monitor.queue.js";
-import { getHourlyAggregate } from "../repositories/hourlyAggregate.repository.js";
-import { getCurrentIncidentFromDB, getOpenIncidents, getRecentIncidentsBulk,deleteIncidentsByMonitor} from "../repositories/incidents.repository.js";
-import {deleteHeartbeatsByMonitor} from "../repositories/heartbeats.repository.js"
-import { createMonitor, getMonitorsFromDB, updateMonitor,deleteMonitor, getOneMonitorFromDB} from "../repositories/monitors.repository.js"
+import { getHourlyAggregate } from "../../../shared/repositories/hourlyAggregate.repository.js";
+import { getCurrentIncidentFromDB, getOpenIncidents, getRecentIncidentsBulk,deleteIncidentsByMonitor} from "../../../shared//repositories/incidents.repository.js";
+import {deleteHeartbeatsByMonitor} from "../../../shared/repositories/heartbeats.repository.js"
+import { createMonitor, getMonitorsFromDB, updateMonitor,deleteMonitor, getOneMonitorFromDB} from "../../../shared/repositories/monitors.repository.js"
 import AppError from "../utils/appError.js"
 import { convertToDate, getBinSize } from "../utils/helpers.js";
 

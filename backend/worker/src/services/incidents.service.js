@@ -1,5 +1,5 @@
-import { incrementFailureCount, updateBulkBucketDownTime } from "../../../api/src/repositories/hourlyAggregate.repository.js";
-import { createIncident, updateIncident } from "../../../api/src/repositories/incidents.repository.js";
+import { incrementFailureCount, updateBulkBucketDownTime } from "../../../shared/repositories/hourlyAggregate.repository.js";
+import { createIncident, updateIncident } from "../../../shared/repositories/incidents.repository.js";
 import { calculateDowntimeBuckets } from "../utils/downtime.util.js";
 import { areLast3Down, floorToHour } from "../utils/helpers.js"
 import logger from "../utils/logger.js";

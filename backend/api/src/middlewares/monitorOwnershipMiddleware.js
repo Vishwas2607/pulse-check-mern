@@ -1,4 +1,4 @@
-import { getOneMonitorFromDB } from "../repositories/monitors.repository.js";
+import { getOneMonitorFromDB } from "../../../shared/repositories/monitors.repository.js";
 import AppError from "../utils/appError.js";
 
 const verifyMonitorOwnership = async (req, res, next) => {
