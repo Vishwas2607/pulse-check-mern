@@ -1,9 +1,9 @@
 import { Queue } from "bullmq";
 import IORedis from "ioredis";
 
-const connection = new IORedis({
-    host: process.env.REDIS_HOST || "127.0.0.1",
-    port: 6379,
+const connection = new IORedis(process.env.REDIS_URL,{
+    // host: process.env.REDIS_HOST || "127.0.0.1", //Required for seperate host/port
+    // port: 6379,
     maxRetriesPerRequest: null,
     enableReadyCheck: false
 })
