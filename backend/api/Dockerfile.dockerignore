@@ -1,0 +1,21 @@
+# Ignore relative to the ROOT (where you run the command)
+frontend/
+backend/worker/
+.git
+.gitignore
+
+Dockerfile
+docker-compose.yml
+coverage
+
+# Ignore modules
+**/node_modules/
+backend/node_modules/
+lib/node_modules/
+**/tests/**
+
+# Clean up
+.env
+*.log
+.vscode/
+
