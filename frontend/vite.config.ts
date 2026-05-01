@@ -4,11 +4,16 @@ import tailwindcss from '@tailwindcss/vite'
 import path from"path"
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({mode}) => {
+  return {
   plugins: [react(),tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  }, 
+  },
+  esbuild: {
+    pure: mode === "production" ? ["console.log"] : []
+  }
+}
 })

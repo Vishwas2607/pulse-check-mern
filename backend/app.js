@@ -14,7 +14,6 @@ const app = express();
 app.use(helmet());
 
 const allowedOrigins = [process.env.CLIENT_URI].filter(Boolean);
-console.log(allowedOrigins);
 if(allowedOrigins.length) {
     app.use(cors({origin:allowedOrigins[0],methods:["GET","POST","PATCH","DELETE"],credentials:true}))
 };

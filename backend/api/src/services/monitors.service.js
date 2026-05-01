@@ -31,7 +31,6 @@ export const createNewMonitor = async (userId,data) => {
 
     }
 )
-    console.log(monitor);
     return monitor
 }
 
@@ -180,6 +179,6 @@ export const deleteMonitorService = async(monitorId) => {
     await deleteIncidentsByMonitor(monitorId);
 
     await Promise.all(matchedJobs.map(job => monitorQueue.removeJobScheduler(job.id)));
-    console.log(deletedMonitor)
+
     return deletedMonitor;
 }

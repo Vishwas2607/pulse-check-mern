@@ -3,7 +3,6 @@ export const validateBody = (schema) => (req,res,next) => {
     if(!result.success) {
         throw result.error
     };
-    console.log(result.data, req.body)
     req.validatedBody = result.data;
     next();
 };
