@@ -1,0 +1,37 @@
+services:
+
+  frontend:
+    image: vishwaskumar1234/pulsecheck-frontend:latest
+    ports:
+      - "80:80"
+    env_file:
+      - frontend/.env
+    depends_on:
+      - api
+    restart: unless-stopped
+  api:
+    image: vishwaskumar1234/pulsecheck-api:latest
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - backend/.env
+    depends_on:
+      - redis
+    expose:
+      - "5000"
+    restart: unless-stopped
+
+
+  worker:
+    image: vishwaskumar1234/pulsecheck-worker:latest
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - backend/worker/.env
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
