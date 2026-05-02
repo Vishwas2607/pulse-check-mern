@@ -24,6 +24,12 @@ export const startWorker = () => {
             logger.info(`Job ${job.id} completed`);
         });
 
+        worker.on("drained", async () => {
+            logger.info("All jobs processed");
+            await worker.close();
+            resolve();
+        });
+
         worker.on("failed", (job,err)=> {
             logger.info(`failed jobId: ${job?.id}, monitorId: ${job?.data?.monitorId}, attempNumber: ${job?.attemptsMade}`)
             logger.error(err.message|| err)
