@@ -50,6 +50,8 @@ jobs:
         working-directory: backend
         run: npm run test:api
         env:
+          NODE_ENV: test
+          JWT_SECRET: super_secret_test_key
           MONGOMS_DOWNLOAD_DIR: /tmp/mongodb-binaries
 
 
