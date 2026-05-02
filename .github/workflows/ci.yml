@@ -63,6 +63,7 @@ jobs:
         working-directory: backend/worker
         run: npm test 
         env:
+          NODE_ENV: test
           MONGOMS_DOWNLOAD_DIR: /tmp/mongodb-binaries
 
   
@@ -106,3 +107,13 @@ jobs:
           file: frontend/Dockerfile
           push: true
           tags: ${{secrets.DOCKER_USERNAME}}/pulsecheck-frontend:latest
+
+  deploy: 
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render API Deploy
+        run: curl -X POST ${{secrets.RENDER_API_DEPLOY_HOOK_URL}}
+
+      - name: Trigger Render Worker Deploy
+        run: curl -X POST ${{secrets.RENDER_WORKER_DEPLOY_HOOK_URL}}
