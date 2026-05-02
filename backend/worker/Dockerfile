@@ -20,7 +20,7 @@ WORKDIR /app
 
 RUN addgroup -S app && adduser -S app -G app
 
-COPY --from=builder /app/node_modules ./
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/worker ./worker
 COPY --from=builder /app/shared ./shared
 
