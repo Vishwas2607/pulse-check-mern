@@ -42,13 +42,7 @@ graph TD
 
 ```
 
-Client → API (Express)
-            ↓
-        Queue (BullMQ + Redis)
-            ↓
-        Worker (Background Processor)
-            ↓
-        MongoDB
+Client → API (Express) → Queue (BullMQ + Redis) → Worker (Background Processor) → MongoDB
 
 How it works
 
@@ -60,7 +54,10 @@ Failure detection triggers incident lifecycle
 Aggregation layer maintains analytics data
 
 🔄 Data Flow
-Heartbeat → Failure Detection → Incident Lifecycle → Aggregation → Analytics API
+
+Heartbeat → Failure Detection → Incident 
+
+Lifecycle → Aggregation → Analytics API
 
 ```mermaid
 flowchart LR
@@ -92,6 +89,7 @@ flowchart LR
 
 🌐 Monitoring Engine
 Periodic URL checks using repeatable jobs
+
 Measures:
 Response time
 HTTP status
@@ -113,39 +111,47 @@ Uses last 3 heartbeats
 Marks failure on 3 consecutive DOWN states
 
 ```meramid
-%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#0f172a', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#6366f1', 'lineColor': '#818cf8', 'secondaryColor': '#1e1b4b', 'tertiaryColor': '#020617' } } }%%
-stateDiagram-v2
-    [*] --> UP
+flowchart TD
+    %% Styling Classes for Slate & Indigo Theme
+    classDef default fill:#0f172a,stroke:#334155,stroke-width:1px,color:#ffffff;
+    classDef startEnd fill:#1e1b4b,stroke:#6366f1,stroke-width:1px,color:#ffffff;
+    classDef highlight fill:#1e293b,stroke:#6366f1,stroke-width:2px,color:#ffffff;
+    classDef alert fill:#450a0a,stroke:#ef4444,stroke-width:2px,color:#fca5a5;
+
+    Start([● Start]):::startEnd --> UP[🟢 System Status: UP]:::highlight
     
-    UP --> DOWN: 1st Down Heartbeat
-    DOWN --> UP: 1st Up Heartbeat (Recovers)
+    UP -->|1st DOWN heartbeat| DOWN_Box
+    DOWN_Box -->|1st UP heartbeat| UP
     
-    state DOWN {
-        [*] --> Strike1
-        Strike1 --> Strike2: 2nd consecutive failure
-        Strike2 --> Strike3: 3rd consecutive failure
-        Strike3 --> [*]: Trigger Incident Lifecycle
-    }
-    
-    Strike3 --> ActiveIncident
-    ActiveIncident --> Resolved: Up Heartbeat Detected
-    Resolved --> UP: Auto-Resolves & Closes Incident
+    subgraph DOWN_Box [🚨 Consecutive Failures Detection]
+        direction TB
+        Strike1[Strike 1]:::default --> Strike2[Strike 2]:::default
+        Strike2 --> Strike3[Strike 3]:::default
+        Strike3 --> Trigger([Trigger Incident Lifecycle]):::alert
+    end
+    style DOWN_Box fill:#020617,stroke:#6366f1,stroke-width:2px,color:#ffffff;
+
+    Trigger --> ActiveIncident[⚠️ Active Incident]:::alert
+    ActiveIncident -->|UP heartbeat detected| Resolved[✅ Resolved]:::highlight
+    Resolved --> UP
 
 ```
 
 📟 Incident Management
+
 Prevents duplicate incidents
 Auto-resolves on recovery
 Tracks full lifecycle
 
 📊 Analytics Engine (Optimized)
-Problem:
 
+Problem:
 Heavy aggregation queries don’t scale well
 
 Solution:
 Built incremental hourly aggregation system
 Uses bucketed writes during worker execution
+
 Impact:
 ⚡ ~90% reduction in query latency
 📉 ~80% reduction in DB load
@@ -184,6 +190,7 @@ Concurrency-safe design
 ⚖️ Trade-offs
 
 Cron-based worker (due to free tier limits)
+
 Known limitation:
 Aggregation may miss data if retry fails mid-process
 Chose simplicity over over-engineering
@@ -230,6 +237,7 @@ React, TypeScript, TailwindCSS
 
 DevOps
 Docker, CI/CD
+
 ⚠️ Limitations
 Cron-based worker may introduce delays
 Not fully real-time without dedicated worker infra
@@ -241,15 +249,32 @@ Distributed worker scaling
 SLA tracking
 Alert policies
 
+🌍 Live Demo
+
+Frontend: Deployed on Render
+
+Backend: Deployed on Render
+
+👉 https://pulse-check-m0fs.onrender.com
+
 🧑‍💻 Getting Started
 git clone https://github.com/Vishwas2607/pulse-check-mern.git
 cd pulse-check-mern
 npm install
 
-Create .env:
+Create .env (inside backend):
+
+NODE_ENV=development
 PORT=5000
 MONGO_URI=your_mongo_uri
 JWT_SECRET=your_secret
+REDIS_URL=your_redis_url
+CLIENT_URI
+
+Create .env (inside worker):
+
+NODE_ENV=development
+MONGO_URI=your_mongo_uri
 REDIS_URL=your_redis_url
 
 Run:
