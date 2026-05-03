@@ -14,11 +14,11 @@ app.post("/run-cron", async(req,res) => {
     if(token !== process.env.CRON_SECRET){
         return res.status(403).send("Forbidden");
     }
+    res.send("Worker executed");
     try {
         await startWorker();
-        res.send("Worker executed");
     } catch (err) {
-        res.status(500).send("Error Running worker")
+        logger.error("Error Running worker in background", err)
     }
 })
 if(process.env.NODE_ENV !== "test") {
