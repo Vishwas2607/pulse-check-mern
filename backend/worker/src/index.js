@@ -9,22 +9,22 @@ dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
 
 const app = express();
 
-app.post("/run-cron", async(req,res) => {
+app.get("/run-cron", async(req,res) => {
     const token = req.headers["x-cron-secret"];
     if(token !== process.env.CRON_SECRET){
         return res.status(403).send("Forbidden");
     }
-    res.send("Worker executed");
-    try {
-        await startWorker();
-    } catch (err) {
-        logger.error("Error Running worker in background", err)
-    }
-})
+    res.status(200).send("Ok");
+});
+
 if(process.env.NODE_ENV !== "test") {
     ConnectDB()
-    .then(()=> {
+    .then(async()=> {
         logger.info("✅ DB connected successfully");
+        
+        await startWorker();
+        logger.info("👷 Worker initialized and listening...");
+
        app.listen(10000, ()=> console.log("Worker server running..."))
     }).catch((err)=> {
         logger.error({err},"❌ Failed to connect to DB")
