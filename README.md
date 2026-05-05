@@ -121,7 +121,6 @@ flowchart TD
     Start([● Start]):::startEnd --> UP[🟢 System Status: UP]:::highlight
     
     UP -->|1st DOWN heartbeat| DOWN_Box
-    DOWN_Box -->|1st UP heartbeat| UP
     
     subgraph DOWN_Box [🚨 Consecutive Failures Detection]
         direction TB
