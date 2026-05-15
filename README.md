@@ -300,14 +300,17 @@ Chosen intentionally to avoid unnecessary system complexity.
 
 # 📸 Screenshots
 
-## Dashboard
+## Monitors
 
+<img width="1906" height="816" alt="image" src="https://github.com/user-attachments/assets/e81a5c19-60ea-4aca-9141-03d096a1cccc" />
 
 ## Analytics
 
+<img width="1891" height="858" alt="image" src="https://github.com/user-attachments/assets/db0532d4-0968-4e35-b96c-0198d90a6f77" />
 
 ## Incidents
 
+<img width="1891" height="836" alt="image" src="https://github.com/user-attachments/assets/d5fd942f-0b9b-47d9-9431-861d78f3a5ef" />
 
 ---
 
