@@ -1,4 +1,3 @@
-````md
 # 📡 PulseCheck
 
 > A production-oriented distributed uptime monitoring system inspired by modern observability tools like Pingdom and Datadog.
@@ -303,21 +302,12 @@ Chosen intentionally to avoid unnecessary system complexity.
 
 ## Dashboard
 
-```md
-
-```
 
 ## Analytics
 
-```md
-
-```
 
 ## Incidents
 
-```md
-
-```
 
 ---
 
@@ -506,5 +496,4 @@ MIT License
 
 If you like this project, consider giving it a ⭐ on GitHub.
 
-```
-```
+---
