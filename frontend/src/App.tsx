@@ -27,7 +27,7 @@ function App() {
     <>
     <div className='min-h-svh flex flex-col bg-main'>
 
-    <header className="header flex justify-between items-center h-12 mb-6">
+    <header className="header relative z-40 flex justify-between items-center h-12 mb-6">
 
       <div className='lg:hidden'>
         <Hamburger toggled={isOpen} toggle={()=>setOpen(!isOpen)} color={"white"} size={24}/>
@@ -44,7 +44,7 @@ function App() {
           exit={{x:"-100%"}}
           transition={{duration:0.4, ease:"easeOut"}}
           aria-hidden={!isOpen}
-          className='fixed bottom-0 left-0 h-[calc(100vh-48px)] z-10 lg:hidden'
+          className='fixed bottom-0 left-0 h-[calc(100dvh-48px)] z-50 lg:hidden'
           >
           <Sidebar/>
           </motion.div>
