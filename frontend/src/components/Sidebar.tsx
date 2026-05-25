@@ -3,8 +3,9 @@ import { useAuthentication } from "@/features/auth/context/AuthenticationContext
 import { Monitor, HomeIcon,LucideLogIn, UserPlus, Plus} from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { toast } from "sonner";
+import {Squash as Hamburger} from "hamburger-react"
 
-export default function Sidebar(){
+export default function Sidebar({isOpen, setOpen}: {isOpen:boolean; setOpen: (isOpen:boolean)=> void}){
     const{authenticatedDetails,verifyAuth} = useAuthentication();
     const navigate = useNavigate();
 
@@ -26,6 +27,9 @@ export default function Sidebar(){
 
     return(
         <nav className="sidebar px-0">
+            <div className="flex w-full justify-end">
+            <Hamburger toggled={isOpen} toggle={()=>setOpen(!isOpen)} color={"white"} size={20}/>
+            </div>
             <NavLink to={"/"} className={({isActive})=> isActive ? "active-sidebar-link": "sidebar-link" }><HomeIcon/>Home</NavLink>
 
             {authenticatedDetails.authenticated !== "authenticated" && (

@@ -257,7 +257,7 @@
 
 @utility sidebar {
   @apply bg-gray-900 border-r border-gray-800 
-         w-40 md:w-50 h-screen p-4 text-body flex flex-col gap-3;
+         w-40 md:w-50 h-screen text-body flex flex-col gap-3;
 }
 
 @utility nav-item {
