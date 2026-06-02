@@ -17,6 +17,8 @@ app.get("/run-cron", async(req,res) => {
     res.status(200).send("Ok");
 });
 
+const PORT = process.env.PORT || 4000;
+
 if(process.env.NODE_ENV !== "test") {
     ConnectDB()
     .then(async()=> {
@@ -25,7 +27,7 @@ if(process.env.NODE_ENV !== "test") {
         await startWorker();
         logger.info("👷 Worker initialized and listening...");
 
-       app.listen(10000, ()=> console.log("Worker server running..."))
+       app.listen(PORT, ()=> console.log(`Worker server running on port ${PORT}...`))
     }).catch((err)=> {
         logger.error({err},"❌ Failed to connect to DB")
         process.exit(1);
